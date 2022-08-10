@@ -1,0 +1,12 @@
+<?php
+defined("DS") or die("Errors System");
+require_once 'controler.php';
+$smarty->config_load("rptagent.conf");
+
+if ($task):
+    $controler = new controler();
+    $controler->$task();
+endif;
+
+exit();
+?>

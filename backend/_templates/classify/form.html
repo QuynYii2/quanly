@@ -1,0 +1,153 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+	
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmClassify" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="classify"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#CLASSIFY_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="introtext_{$items.code}">{#CLASSIFY_INTRO#}: </label>              
+						<textarea id="introtext_{$items.code}" name="vform[introtext][{$items.code}]" class="inputbox">{$ObjectLang[$items.code].introtext}</textarea>
+						<div class="clear"></div>
+					</div>
+<!-- 
+					<div class="block">
+						<label for="tags_{$items.code}">{#CLASSIFY_TAGS#}:</label>
+						<input type="text" class="inputbox" id="tags_{$items.code}" name="vform[tags][{$items.code}]" value="{$ObjectLang[$items.code].tags}"/>
+						<div class="clr"></div>
+					</div>
+ -->
+					<div class="block">
+						<label for="meta_{$items.code}">{#CLASSIFY_META#}:</label>
+						<!-- <input type="text" fortit="tit_meta_{$items.code}" class="inputbox meta-limiters" id="meta_{$items.code}" name="vform[meta][{$items.code}]" value="{$ObjectLang[$items.code].meta}"/> -->
+						<textarea fortit="tit_meta_{$items.code}" class="inputbox meta-limiters" id="meta_{$items.code}" name="vform[meta][{$items.code}]">{$ObjectLang[$items.code].meta}</textarea>
+						<div class="clr"></div>
+						<div class="char-limit">The meta description will be limited to 160 chars, <span id="tit_meta_{$items.code}">0</span> chars left.</div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+			<!-- 
+			<div class="block">
+				<label style="margin-right: -100%;">{#CLASSIFY_POSITION#}:</label>
+				<div class="group-radio" style="display: block;margin-left: 140px;">
+					{foreach key=key item=val from=$Position}
+					<input style="margin-left: 0;" type="checkbox" id="position_{$key}" name="vform[position][]" value="{$key}" {if in_array($key, $ObjectData.position)}checked="checked"{/if}/>
+					<label for="position_{$key}" style="margin-right: 10px;">{$val}</label>
+					{/foreach}
+				</div>
+				<div class="clear"></div>
+			</div>
+			 -->
+			<div class="block">
+				<label>{#CLASSIFY_IMAGE#}:</label>
+				<input type="file" class="inputbox" id="image" name="image" value="{$ObjectData.image}" />
+				{if $ObjectData.image}
+				<div class="overview">
+					<a image="{$ObjectData.image}" class="tooltip remimage" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+					<img id="itemimage" src="{$smarty.const.IMG_URL}classify/resize/{$ObjectData.thumb}" class="thumbnail"/>
+				</div>
+				<input type="hidden" id="remimage" name="vform[remimage]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="code">{#CLASSIFY_PARENT#}:</label>
+				<select id="parent" name="vform[parent]" class="inputbox">
+					<option value="0" selected="selected">{#PLEASE_SELECT#}</option>
+					{foreach key = key item = items from = $ParentData }
+					<option value="{$items.id}" {if $ObjectData.parent eq $items.id}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="social">{#FILE_SOCIAL#}:</label>
+				<input type="file" class="inputbox" id="social" name="social" value="{$ObjectData.social}" />
+				{if $ObjectData.social}
+				<div class="overview">
+					<a social="{$ObjectData.social}" class="tooltip remsocial" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+					<img id="itemsocial" src="{$smarty.const.IMG_URL}classify/{$ObjectData.social}" class="thumbnail"/>
+				</div>
+				<input type="hidden" id="remsocial" name="vform[remsocial]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+</form>

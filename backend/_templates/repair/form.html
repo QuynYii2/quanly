@@ -1,0 +1,167 @@
+{literal}
+<script repair="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	$("#birthday").datepicker({
+		changeMonth: true,
+		changeYear: true,
+		dateFormat: 'dd-mm-yy',
+		yearRange: 'c-100:c+0'
+	});
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmRepair" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="repair"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	
+	<div class="width-50 fltlft">
+		<fieldset class="adminform">
+			<legend>{#REPAIR_BASIC#}</legend>
+			<br/>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_TITLE#}: </label>              
+				<label class="value">{$ObjectData.title}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_MANUF#}: </label>              
+				<label class="value">{$ObjectData.manuf}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_MODEL#}: </label>              
+				<label class="value">{$ObjectData.model}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_VERSION#}: </label>              
+				<label class="value">{$ObjectData.version}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_YEAR#}: </label>              
+				<label class="value">{$ObjectData.year}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_COLOR#}: </label>              
+				<label class="value">{$ObjectData.color}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_GONE#}: </label>              
+				<label class="value">{$ObjectData.gone}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_GEAR#}: </label>              
+				<label class="value">{$ObjectData.gear}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_FUEL#}: </label>              
+				<label class="value">{$ObjectData.fuel}</label>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+		<fieldset class="adminform">
+			<legend>{#REPAIR_COMFORT#}</legend>
+			<br/>
+			<div class="block readonly">{$Comforts}</div>
+			<h3>{#REPAIR_PRICE#}: {$ObjectData.price|number_format:0:",":"."}VNĐ</h3>
+		</fieldset>
+	</div>
+	
+	<div class="width-50 fltrt">
+		<fieldset class="adminform">
+			<legend>{#REPAIR_INFOR#}</legend>
+			<br/>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_BOOK#}: </label>              
+				<label class="value">{$ObjectData.book|date_format:'%d-%m-%Y'}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_LOCATION#}: </label>              
+				<label class="value">{$ObjectData.location}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_NAME#}: </label>              
+				<label class="value">{$ObjectData.name}</label>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+		<fieldset class="adminform">
+			<legend>{#REPAIR_CONTACT#}</legend>
+			<br/>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_COMPANY#}: </label>              
+				<label class="value">{$ObjectData.company}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_PERSON#}: </label>              
+				<label class="value">{$ObjectData.person}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_PHONE#}: </label>              
+				<label class="value">{$ObjectData.phone}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_ADDRESS#}: </label>              
+				<label class="value">{$ObjectData.address}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_CITY#}: </label>              
+				<label class="value">{$ObjectData.city_name}</label>
+				<div class="clear"></div>
+			</div>
+			<div class="block readonly">
+			 	<label class="title">{#REPAIR_EMAIL#}: </label>              
+				<label class="value">{$ObjectData.email}</label>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#REPAIR_IMAGE#}</legend>
+			<br/>
+			<div>
+				<div id="multi_images" style="padding-left:10px;display: table;">
+				{foreach item=image from=$images}
+				<img src=../data/images/repair/{$image} style="width:190px;height:120px;border:#DDDDDD 1px solid;padding:1px;"/>
+				{/foreach}
+				</div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#REPAIR_INTRO#}</legend>
+			<br/>
+			<div>{$ObjectData.introtext}</div>
+		</fieldset>
+	</div>
+</form>

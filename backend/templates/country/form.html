@@ -1,0 +1,82 @@
+{literal}
+<script country="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmCountry" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="country"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="code">{#CODE#}:</label>
+                    <input type="text" id="code" name="vform[code]" value="{$ObjectData.code}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="introtext">{#INTROTEXT#}: </label>
+                    <textarea id="introtext" name="vform[introtext]" class="form-control">{$ObjectData.introtext}</textarea>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="name">{#TITLE#}:</label>
+                    <input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="form-control required"/>
+                </div>
+                <!--
+                <div class="form-group">
+                    <label>{#IMAGE#}:</label>
+                    <div class="row">
+                        <div class="col-sm-6"><input type="file" class="form-control" id="image" name="image" value="{$ObjectData.image}" /></div>
+                        <div class="col-sm-6">
+                            {if $ObjectData.image}
+                            <div class="overview">
+                                <a image="{$ObjectData.image}" class="tooltip remimage" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+                                <img id="itemimage" src="{$smarty.const.IMG_URL}country/resize/{$ObjectData.thumb}" class="thumbnail"/>
+                            </div>
+                            <input type="hidden" id="remimage" name="vform[remimage]" value="0"/>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ordering">{#ORDERING#}:</label>
+                    <select id="ordering" name="vform[ordering]" class="form-control">
+                        <option value="0">{#OPTION_FIRST#}</option>
+                        {foreach key = key item = items from = $Ordering }
+                        <option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+                        {/foreach}
+                        <option value="{$items.value+1}">{#OPTION_LAST#}</option>
+                    </select>
+                </div>
+                -->
+                <div class="form-group">
+                    <label for="published">{#PUBLISHED#}: </label>
+                    <select id="published" name="vform[published]" class="form-control">
+                        <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                        <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+	</fieldset>
+</form>

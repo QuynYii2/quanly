@@ -1,0 +1,67 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remattach').click(function(){
+		$(this).remove();
+		$('img#itemattach').remove();
+		$('input#remattach').val($(this).attr('attach'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmNewsletter" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="newsletter"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="name">{#NEWSLETTER_NAME#}:</label>
+				<input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#NEWSLETTER_EMAIL#}:</label>
+				<input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="required email"/>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+	</fieldset>
+</form>

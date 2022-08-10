@@ -1,0 +1,40 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmLanguage" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="language"/>
+	<input type="hidden" id="view" name="view" value="text" />
+	<input type="hidden" id="code" name="code" value="{$ObjectData.code}" />
+	<input type="hidden" id="lang" name="lang" value="{$ObjectData.id}" />
+	<fieldset class="adminform">
+		<legend>{$ObjectData.name} [<span style="font-size: 10px;">{$ObjectData.code}</span>]</legend>
+		<br/>
+		<div class="width-100">
+			{foreach key=key item=items from=$ObjectText}
+			<div class="block">
+				<label for="{$items.title}" style="width: 200px;">{$items.title}:</label>
+				<textarea id="{$items.title}" name="vform[{$items.title}]" style="width: 600px;">{$items.value}</textarea>
+				<div class="clear"></div>
+			</div>
+			{/foreach}
+		</div>
+	</fieldset>
+</form>

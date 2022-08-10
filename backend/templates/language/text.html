@@ -1,0 +1,64 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmLanguage" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+    <input type="hidden" id="genre" name="genre" value="{$genre}" />
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="language"/>
+	<input type="hidden" id="view" name="view" value="text" />
+	<input type="hidden" id="code" name="code" value="{$ObjectData.code}" />
+	<input type="hidden" id="lang" name="lang" value="{$ObjectData.id}" />
+	<fieldset class="adminform">
+		<legend><label>{$ObjectData.name} [<span style="font-size: 10px;">{$ObjectData.code}</span>]</label></legend>
+        {if $genre eq 'front'}
+        <div class="width-100">
+            {foreach key=key item=items from=$ObjectText}
+            <div class="block">
+                <label for="{$items.title}" style="width: 200px;">{$items.title}:</label>
+                <textarea id="{$items.title}" name="vform[{$items.title}]" style="width: 600px;">{$items.value}</textarea>
+                <div class="clear"></div>
+            </div>
+            {/foreach}
+        </div>
+        {else}
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            {foreach key=value item=title from=$modules}
+            {if $title neq '' && count($ObjectText[$value]) gt 0}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading{$value}">
+                    <h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{$value}" aria-expanded="true" aria-controls="collapse{$value}">{$title}</a></h4>
+                </div>
+                <div id="collapse{$value}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{$value}">
+                    <div class="panel-body">
+                        {foreach key=key item=items from=$ObjectText[$value]}
+                        <div class="form-group">
+                            <label for="{$value}_{$items.title}">{$items.title}:</label>
+                            <textarea id="{$value}_{$items.title}" name="vform[{$value}][{$items.title}]" class="form-control">{$items.value}</textarea>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+            {/if}
+            {/foreach}
+        </div>
+        {/if}
+	</fieldset>
+</form>

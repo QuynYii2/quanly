@@ -1,0 +1,986 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+    /**
+    $.validator.addMethod("multiSelectRequired", function (value, element) { return element.length > 0; });
+    $('select#agencies').each(function () {
+        $(this).change(function () { $(this).valid(); });
+        $(this).rules('add', { 'multiSelectRequired': true });
+    });
+    **/
+
+    $("#form-admin").submit(function(){
+        var check = false;
+        $('select#agencies').find('option').each(function(){ if ($(this).is(':selected')) check = true; });
+        if (check === false && $('input#task').val() != 'cancel') {
+            alert('Please select agent');
+            return false;
+        }
+    });
+    $("#form-admin").validate();
+
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+
+    $('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+
+    $('button#export').click(function(){
+        $('input#task').val('export');
+        $('form.form-admin').submit();
+    });
+
+    $('button#sendto').click(function(){
+        $('input#task').val('sendto');
+        $('form.form-admin').submit();
+    });
+});
+</script>
+{/literal}
+
+<div class="ajax-overlay"></div>
+<div class="ajax-loading"></div>
+
+<form action="" method="post" name="frmExtQuotation" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="extquotation"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+    <div class="row">
+        <div class="col-sm-6">
+            <fieldset class="adminform">
+                <legend><label>{#INFO_ONE_LANGUAGE#}</label></legend>
+                <input type="hidden" id="oldid_en" name="vform[oldid][en]" value="{$ObjectLang.en.id}"/>
+                <div class="form-group">
+                    <label for="name_en">{#TITLE#}:</label>
+                    <input type="text" class="form-control required" id="name_en" name="vform[name][en]" value="{$ObjectLang.en.name}"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="introtext_en">{#INTROTEXT#}: </label>
+                    <textarea id="introtext_en" name="vform[introtext][en]" class="form-control">{$ObjectLang.en.introtext}</textarea>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="col-sm-6">
+            <fieldset class="adminform">
+                <legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+                <div class="row">
+                    <input type="hidden" id="code" name="vform[code]" value="{$ObjectData.code}"/>
+                    <!--
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="code">{#CODE#}:</label>
+                            <input type="text" class="form-control required" id="code" name="vform[code]" value="{$ObjectData.code}"/>
+                        </div>
+                    </div>
+                    <input type="hidden" class="form-control required number" id="conversion" name="vform[conversion]" value="1"/>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="conversion">{#CONVERSION#}:</label>
+                            <input type="text" class="form-control required number" id="conversion" name="vform[conversion]" value="{$ObjectData.conversion}"/>
+                        </div>
+                    </div>
+                    -->
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label for="paxgroup">{#PAXGROUP#}:</label>
+                            <select id="paxgroup" name="vform[paxgroup]" class="form-control required">
+                                {foreach key = key item = items from = $paxgroups }
+                                <option value="{$items.id}" {if $ObjectData.paxgroup eq $items.id}selected="selected"{/if}>{$items.name}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label for="pricefor">{#PRICEFOR#}:</label>
+                            <select id="pricefor" name="vform[pricefor]" class="form-control required">
+                                <option value="0" {if $ObjectData.pricefor eq 0}selected="selected"{/if}>{#PRICEFOR_0#}</option>
+                                <option value="1" {if $ObjectData.pricefor eq 1}selected="selected"{/if}>{#PRICEFOR_1#}</option>
+                                <option value="2" {if $ObjectData.pricefor eq 2}selected="selected"{/if}>{#PRICEFOR_2#}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label for="numday">{#NUMDAY#}:</label>
+                            <input type="text" class="form-control required number" id="numday" name="vform[numday]" value="{$ObjectData.numday}"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="numday">{#CREATE_BY#}:</label>
+                            <div>{$ObjectData.create_name}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="numday" style="display: block;">&nbsp;</label>
+                            <button type="button" id="add-quotation" class="btn btn-primary">{#ADD_PRICELIST#}</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="departure">{#DEPARTURE#}:</label>
+                            <input type="text" class="form-control required datetime date-time" id="departure" name="vform[departure]" value="{$ObjectData.departure|date_format:'%d-%m-%Y'}"/> <!--  %H:%M:%S -->
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="discount">{#DISCOUNT#}:</label>
+                            <input type="text" class="form-control required datetime" id="discount" name="vform[discount]" value="{$ObjectData.discount|number_format:2:',':'.'}"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="disgenre">{#DISGENRE#}:</label>
+                            <select id="disgenre" name="vform[disgenre]" class="form-control required">
+                                <option value="0" {if $ObjectData.disgenre eq '0'}selected="selected"{/if}>{#DISGENRE_0#}</option>
+                                <option value="1" {if $ObjectData.disgenre eq '1'}selected="selected"{/if}>{#DISGENRE_1#}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="published">{#PUBLISHED#}: </label>
+                            <select id="published" name="vform[published]" class="form-control">
+                                <option value="0" {if $ObjectData.published eq 0}selected="selected"{/if}>{#OPTION_0#}</option>
+                                <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_1#}</option>
+                                <!--
+                                <option value="2" {if $ObjectData.published eq 2}selected="selected"{/if}>{#OPTION_2#}</option>
+                                <option value="3" {if $ObjectData.published eq 3}selected="selected"{/if}>{#OPTION_3#}</option>
+                                <option value="4" {if $ObjectData.published eq 4}selected="selected"{/if}>{#OPTION_4#}</option>
+                                -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="agencies">{#AGENCIES#}:</label>
+                            <select name="vform[agencies][]" id="agencies" class="form-control required">
+                                {foreach key=key item=items from=$agencies}
+                                <option value="{$items.id}" {if in_array($items.id, $ObjectData.agencies)}selected="selected"{/if}>{$items.code} - {$items.name} [i]{$items.phone}[/i]</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="ordering">{#ORDERING#}:</label>
+                            <select id="ordering" name="vform[ordering]" class="form-control">
+                                <option value="0">{#OPTION_FIRST#}</option>
+                                {foreach key = key item = items from = $Ordering }
+                                <option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+                                {/foreach}
+                                <option value="{$items.value+1}">{#OPTION_LAST#}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                <div class="form-group">
+                    <label for="social">{#FILE_SOCIAL#}:</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="file" class="form-control" id="social" name="social" value="{$ObjectData.social}" />
+                        </div>
+                        <div class="col-sm-6">
+                            {if $ObjectData.social}
+                            <div class="overview">
+                                <a social="{$ObjectData.social}" class="tooltip remsocial" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+                                <img id="itemsocial" src="{$smarty.const.IMG_URL}extquotation/{$ObjectData.social}" class="thumbnail"/>
+                            </div>
+                            <input type="hidden" id="remsocial" name="vform[remsocial]" value="0"/>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+                -->
+                <button type="button" id="export" class="btn btn-primary">{#EXPORT_EXCEL#}</button>
+                <button type="button" id="sendto" class="btn btn-primary">{#SEND_AGENCIES#}</button>
+            </fieldset>
+        </div>
+    </div>
+
+    {if count($journeies) gt 0}
+    {literal}
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        /**
+        $('form#form-admin #quotation-list fieldset').each(function(){
+            var today = $(this).attr('item');
+            $(this).find('#service-list >div').each(function(){
+                var group = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?option=extquotation&view=callajax&task=getParentName&ajax=1',
+                    data: { genre: group.find('select.service option:selected').val(), location: group.find('select.location option:selected').val(), setvalue: group.find('input.profile').attr('setvalue') },
+                    dataType: 'html',
+                    success: function(result){
+                        group.find('input.profile').val(result).attr('item', result);
+                        $.ajax({
+                            type: "POST",
+                            url: 'index.php?option=extquotation&view=callajax&task=getChildrenName&ajax=1',
+                            data: {
+                                genre: group.find('select.service option:selected').val(), parent: group.find('input.profile').val(),
+                                setvalue: group.find('input.detail').attr('setvalue'), arrival: $('input#departure').val(), paxgroup: $('select#paxgroup').val(), today: today
+                            },
+                            dataType: 'html',
+                            success: function(result){
+                                group.find('input.detail').val(result).attr('item', result);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+        **/
+    });
+    </script>
+    {/literal}
+    {/if}
+
+    <div id="quotation-list">
+        {foreach key=key item=journey from=$journeies}
+        <fieldset id="day-{$key}" item="{$key}" class="adminform" style="margin-top: 20px;">
+            <legend class="bg-success"><label># {#DAY#} {$key+1} <span class="show-date" data-date="{$ObjectData.departure|date_format:'%d-%m-%Y'}" data-next="{$key}"></span></label><button type="button" id="del-journey-{$key}" class="del-journey btn btn-danger" data-toggle="tooltip" data-placement="top" title="{#DEL_JOURNEY_TITLE#}">{#DEL_JOURNEY#}</button></legend>
+            <input type="hidden" id="journey-id" name="vdata[jid][]" value="{$journey.id}"/>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="from-{$key}">{#FROM#}: <i class="text-danger note"><span class="glyphicon glyphicon-info-sign"></span> {#CHANGE_F_LOCATION_NOTE#}</i></label>
+                        <div class="ajax-areas">
+                            <input type="text" id="from-{$key}" name="vdata[f_name][]" value="{$journey.f_name}" class="form-control ajax-search f_name" item="{$journey.f_name}" placeholder="{#FROM#}" autocomplete="off"/>
+                            <input type="hidden" name="vdata[f_location][]" value="{$journey.f_location}" class="form-control ajax-value f_location" />
+                            <ul class="ajax-result"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="to-{$key}">{#TO#}: <i class="text-danger note"><span class="glyphicon glyphicon-info-sign"></span> {#CHANGE_T_LOCATION_NOTE#}</i></label>
+                        <div class="ajax-areas">
+                            <input type="text" id="to-{$key}" name="vdata[t_name][]" value="{$journey.t_name}" class="form-control ajax-search t_name" item="{$journey.t_name}" placeholder="{#TO#}" autocomplete="off"/>
+                            <input type="hidden" name="vdata[t_location][]" value="{$journey.t_location}" class="form-control ajax-value t_location" />
+                            <ul class="ajax-result"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label for="intro-{$key}">{#INTROTEXT#}</label>
+                    <textarea class="form-control" id="intro-{$key}" name="vdata[introtext][]">{$journey.introtext}</textarea>
+                </div>
+                <div class="col-sm-2">
+                    <label style="display: block;">&nbsp;</label>
+                    <button type="button" id="add-service-{$key}" class="add-service btn btn-warning pull-right" data-toggle="tooltip" data-placement="top" title="{#ADD_SERVICE_TITLE#}">{#ADD_SERVICE#}</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-sm-3 col-md-2"><label style="display: block;margin: 15px 0 0;">{#SERVICE#}: </label></div>
+                        <div class="col-sm-3 col-md-2"><label style="display: block;margin: 15px 0 0;">{#LOCATION#}: </label></div>
+                        <div class="col-sm-6 col-md-3"><label style="display: block;margin: 15px 0 0;">{#PROFILE#}: </label></div>
+                        <div class="col-sm-8 col-md-4"><label style="display: block;margin: 15px 0 0;">{#DETAIL#}: </label></div>
+                        <div class="col-sm-2 col-md-1"></div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="margin-bottom: 0;">
+                            <thead>
+                            <tr class="bg-primary">
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_PRICE#}</th>
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#PRICE#}</th>
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_PERPAX#}</th>
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#PERPAX#}</th>
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_SINGLE#}</th>
+                                <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#SINGLE#}</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="service-list">
+                {foreach key=index item=service from=$journey.services}
+                <div id="service-item-{$index}">
+                    <input type="hidden" id="service-id" name="vdata[sid][{$key}][{$index}]" value="{$service.id}" class="form-control" field="sid"/>
+                    <hr style="margin: 5px 0;"/>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select id="control-{$key}-{$index}-0" name="vdata[service][{$key}][{$index}]" field="service" class="form-control service" style="min-width: 100%;">
+                                            <option value=""></option>
+                                            {foreach key=value item=label from=$sergenres}
+                                            <option value="{$value}" {if $value eq $service.service}selected="selected"{/if}>{$label}</option>
+                                            {/foreach}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-md-2">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <select id="control-{$key}-{$index}-1" name="vdata[location][{$key}][{$index}]" field="location" class="form-control location" style="min-width: 100%;">
+                                            <option value=""></option>
+                                            {foreach key=i item=items from=$locations}
+                                                {if $items.id eq $journey.f_location || $items.id eq $journey.t_location}
+                                                <option value="{$items.id}" {if $items.id eq $service.location}selected="selected"{/if}>{$items.name}</option>
+                                                {/if}
+                                            {/foreach}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <div class="ajax-areas">
+                                            <input type="text" id="control-{$key}-{$index}-2" item="{$service.p_name}" setvalue="{$service.profile}" value="{$service.p_name}" placeholder="{#PROFILE#}" name="vdata[p_name][{$key}][{$index}]" field="p_name" class="form-control profile ajax-search" autocomplete="off"/>
+                                            <input type="hidden" item="{$service.profile}" value="{$service.profile}" name="vdata[profile][{$key}][{$index}]" field="profile" class="ajax-value profile_id"/>
+                                            <ul class="ajax-result"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7 col-md-3">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <div class="ajax-areas">
+                                            <input type="text" id="control-{$key}-{$index}-3" item="{$service.d_name}" setvalue="{$service.detail}" value="{$service.d_name}" placeholder="{#DETAIL#}" name="vdata[d_name][{$key}][{$index}]" field="d_name" class="form-control detail ajax-search" autocomplete="off"/>
+                                            <input type="hidden" item="{$service.detail}" value="{$service.detail}" name="vdata[detail][{$key}][{$index}]" field="detail" class="ajax-value detail_id"/>
+                                            <ul class="ajax-result"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" class="form-control number conversion" field="conversion" id="control-{$key}-{$index}-9" name="vdata[conversion][{$key}][{$index}]" value="1"/>
+                                <div class="col-sm-3 col-md-2">
+                                    <div class="form-group" style="margin-bottom: 0;text-align: right;">
+                                        <button type="button" id="sav-service" class="sav-service btn btn-primary" item="service-item-{$index}" data-toggle="tooltip" data-placement="top" title="{#SAV_SERVICE_TITLE#}">{#SAV_SERVICE#}</button>
+                                        <button type="button" id="dup-service" class="dup-service btn btn-success" item="service-item-{$index}" data-toggle="tooltip" data-placement="top" title="{#DUP_SERVICE_TITLE#}">{#DUP_SERVICE#}</button>
+                                        <button type="button" id="del-service" class="del-service btn btn-danger" item="service-item-{$index}" data-toggle="tooltip" data-placement="top" title="{#DEL_SERVICE_TITLE#}">{#DEL_SERVICE#}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            {assign var=paxrange value=$journey.paxrange|json_decode:1}
+                            <div class="table-responsive">
+                                <table class="table table-bordered" style="margin-bottom: 0;">
+                                    <tbody>
+                                    <tr class="bg-info">
+                                        <td class="text-center prices" width="16.6667%" style="padding: 5px 3px;">
+                                            {$service.price|number_format:"2"}
+                                        </td>
+                                        <td class="text-center prices" width="16.6667%" style="padding: 5px 3px;">
+                                            {$service.price+$service.price*$service.markup/100|number_format:"2"}
+                                            <input type="hidden" id="control-{$key}-{$index}-10" name="vdata[price][{$key}][{$index}]" field="price" class="form-control number price" value='{$service.price+$service.price*$service.markup/100|number_format:"2"}'>
+                                            <input type="hidden" id="control-{$key}-{$index}-11" name="vdata[update][{$key}][{$index}]" field="update" class="update" value="1">
+                                        </td>
+                                        <td class="text-center perpax" width="16.6667%" style="padding: 5px 3px;">{$service.perpax|number_format:"2"}</td>
+                                        <td class="text-center perpax" width="16.6667%" style="padding: 5px 3px;">{$service.perpax+$service.perpax*$service.markup/100|number_format:"2"}</td>
+                                        <td class="text-center single" width="16.6667%" style="padding: 5px 3px;">{if $service.single gt 0}{$service.single|number_format:"2"}{/if}</td>
+                                        <td class="text-center single" width="16.6667%" style="padding: 5px 3px;">{if $service.single gt 0}{$service.single+$service.single*$service.markup/100|number_format:"2"}{/if}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/foreach}
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <br/>
+                    <button type="button" id="add-service-{$key}" class="add-service btn btn-warning pull-right" data-toggle="tooltip" data-placement="top" title="{#ADD_SERVICE_TITLE#}">{#ADD_SERVICE#}</button>
+                </div>
+            </div>
+        </fieldset>
+        {/foreach}
+    </div>
+</form>
+
+<div id="service-sample" style="display: none;">
+    <fieldset id="day-n" item="n" class="adminform" style="margin-top: 20px;">
+        <legend class="bg-success"><label># {#DAY#} n <span class="show-date" data-date="{$ObjectData.departure|date_format:'%d-%m-%Y'}" data-next="{$key}"></span></label><button type="button" id="del-journey" class="del-journey btn btn-danger" data-toggle="tooltip" data-placement="top" title="{#DEL_JOURNEY_TITLE#}">{#DEL_JOURNEY#}</button></legend>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label for="from">{#FROM#}: <i class="text-danger note"><span class="glyphicon glyphicon-info-sign"></span> {#CHANGE_F_LOCATION_NOTE#}</i></label>
+                    <div class="ajax-areas">
+                        <input type="text" id="from" name="vdata[f_name][]" value="" class="form-control ajax-search f_name" item="" placeholder="{#FROM#}" autocomplete="off"/>
+                        <input type="hidden" name="vdata[f_location][]" value="" class="form-control ajax-value f_location" />
+                        <ul class="ajax-result"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label for="to">{#TO#}: <i class="text-danger note"><span class="glyphicon glyphicon-info-sign"></span> {#CHANGE_T_LOCATION_NOTE#}</i></label>
+                    <div class="ajax-areas">
+                        <input type="text" id="to" name="vdata[t_name][]" value="" class="form-control ajax-search t_name" item="" placeholder="{#TO#}" autocomplete="off"/>
+                        <input type="hidden" name="vdata[t_location][]" value="" class="form-control ajax-value t_location" />
+                        <ul class="ajax-result"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label for="intro">{#INTROTEXT#}</label>
+                <textarea class="form-control" id="intro" name="vdata[introtext][]"></textarea>
+            </div>
+            <div class="col-sm-2">
+                <label style="display: block;">&nbsp;</label>
+                <button type="button" id="add-service" class="add-service btn btn-warning pull-right" data-toggle="tooltip" data-placement="top" title="{#ADD_SERVICE_TITLE#}">{#ADD_SERVICE#}</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-3 col-md-2"><label style="display: block;margin: 15px 0 0;">{#SERVICE#}: </label></div>
+                    <div class="col-sm-3 col-md-2"><label style="display: block;margin: 15px 0 0;">{#LOCATION#}: </label></div>
+                    <div class="col-sm-6 col-md-3"><label style="display: block;margin: 15px 0 0;">{#PROFILE#}: </label></div>
+                    <div class="col-sm-8 col-md-4"><label style="display: block;margin: 15px 0 0;">{#DETAIL#}: </label></div>
+                    <div class="col-sm-2 col-md-1"></div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered" style="margin-bottom: 0;">
+                        <thead>
+                        <tr class="bg-primary">
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_PRICE#}</th>
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#PRICE#}</th>
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_PERPAX#}</th>
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#PERPAX#}</th>
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#C_SINGLE#}</th>
+                            <th class="text-center" width="16.6667%" style="padding: 5px 3px;">{#SINGLE#}</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="service-list"></div>
+        <div class="row">
+            <div class="col-sm-12">
+                <br/>
+                <button type="button" id="add-service" class="add-service btn btn-warning pull-right" data-toggle="tooltip" data-placement="top" title="{#ADD_SERVICE_TITLE#}">{#ADD_SERVICE#}</button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div id="price-sample" style="display: none;">
+    <div id="service-item-n">
+        <input type="hidden" field="sid" class="form-control" value="0" name="vdata[sid][]" id="service-id">
+        <hr style="margin: 5px 0;"/>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-3 col-md-2">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <select id="service" name="vdata[service][]" field="service" class="form-control- service" style="min-width: 100%;">
+                                <option value=""></option>
+                                {foreach key=value item=label from=$sergenres}
+                                <option value="{$value}" {if $value eq $ObjectData.genre}selected="selected"{/if}>{$label}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-md-2">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <select id="location" name="vdata[location][]" field="location" class="form-control- location" style="min-width: 100%;">
+                                <option value=""></option>
+                                {foreach key=i item=items from=$locations}
+                                {if $items.id eq $journey.f_location || $items.id eq $journey.t_location}
+                                    <option value="{$items.id}" {if $items.id eq $ObjectData.from}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                                {/if}
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <div class="ajax-areas">
+                                <input type="text" id="profile" item="" setvalue="" value="" placeholder="{#PROFILE#}" name="vdata[p_name][]" field="p_name" class="form-control profile ajax-search" autocomplete="off"/>
+                                <input type="hidden" item="" value="" name="vdata[profile][]" field="profile" class="ajax-value profile_id"/>
+                                <ul class="ajax-result"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-7 col-md-3">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <div class="ajax-areas">
+                                <input type="text" id="detail" item="" setvalue="" value="" placeholder="{#DETAIL#}" name="vdata[d_name][]" field="d_name" class="form-control detail ajax-search" autocomplete="off"/>
+                                <input type="hidden" item="" value="" name="vdata[detail][]" field="detail" class="ajax-value detail_id"/>
+                                <ul class="ajax-result"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" class="form-control number conversion" field="conversion" id="ser-conversion" name="vdata[conversion][]" value="1"/>
+                    <!--
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label for="ser-conversion">{#CONVERSION#}:</label>
+                            <input type="text" class="form-control number conversion" field="conversion" id="ser-conversion" name="vdata[conversion][]" value="{$ObjectData.conversion}"/>
+                        </div>
+                    </div>
+                    -->
+                    <div class="col-sm-3 col-md-2">
+                        <div class="form-group" style="margin-bottom: 0;text-align: right;">
+                            <button type="button" id="sav-service" class="sav-service btn btn-primary" data-toggle="tooltip" data-placement="top" title="{#SAV_SERVICE_TITLE#}">{#SAV_SERVICE#}</button>
+                            <button type="button" id="dup-service" class="dup-service btn btn-success" data-toggle="tooltip" data-placement="top" title="{#DUP_SERVICE_TITLE#}">{#DUP_SERVICE#}</button>
+                            <button type="button" id="del-service" class="del-service btn btn-danger" data-toggle="tooltip" data-placement="top" title="{#DEL_SERVICE_TITLE#}">{#DEL_SERVICE#}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered" style="margin-bottom: 0;">
+                        <tbody>
+                        <tr class="bg-info text-danger">
+                            <td class="text-center prices" width="16.6667%" style="padding: 5px 3px;">0</td>
+                            <td class="text-center prices" width="16.6667%" style="padding: 5px 3px;">0</td>
+                            <td class="text-center perpax" width="16.6667%" style="padding: 5px 3px;" minpax="{$items.minpax}" maxpax="{$items.maxpax}" divpax="{$items.divpax}">0</td>
+                            <td class="text-center perpax" width="16.6667%" style="padding: 5px 3px;" minpax="{$items.minpax}" maxpax="{$items.maxpax}" divpax="{$items.divpax}">0</td>
+                            <td class="text-center single" width="16.6667%" style="padding: 5px 3px;">0</td>
+                            <td class="text-center single" width="16.6667%" style="padding: 5px 3px;">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{literal}
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        var qid = parseInt('{/literal}{$ObjectData.id}{literal}');
+        setDelService();
+        setDupService();
+        setAddService();
+        setEventSelect();
+        setEventAddDay();
+        setWidthChosen();
+        setSaveService();
+
+        $('button#add-quotation').click(function(){
+            if ($.trim($('input#departure').val()) == ''){
+                $('input#departure').focus();
+                return false;
+            }
+            var html = $('#service-sample').html();
+            var nums = parseInt($('input#numday').val());
+            var leng = $('#quotation-list fieldset').length;
+            if (leng == 0) for (var i = 0; i < nums; i++){ $('#quotation-list').append(html); }
+            else if (leng < nums) for (var i = leng; i < nums; i++){ $('#quotation-list').append(html); }
+            else if (leng > nums) for (var i = leng; i > nums; i--){ $('#quotation-list fieldset#day-'+(i-1)).remove(); }
+
+            $('#quotation-list fieldset').each(function(index){ $(this).attr('id', 'day-'+index).attr('item', index); });
+            $('#quotation-list legend button').each(function(index){ $(this).attr('id', 'del-journey-'+index); });
+            $('#quotation-list legend label').each(function(index){ $(this).html('# {/literal}{#DAY#}{literal} '+(index+1)+' <span class="show-date" data-date="'+$('input#departure').val()+'" data-next="'+index+'"></span>'); });
+            $('#quotation-list').find('select.form-control-').removeClass('form-control-').addClass('form-control').chosen();
+
+            setDelService();
+            setDupService();
+            setAddService();
+            setEventAddDay();
+            setEventSelect();
+            setSaveService();
+            //group.find('.tooltip').remove();
+
+            $('#quotation-list span.show-date').each(function(){
+                /**
+                var date = getNextToDay($.trim($(this).attr('data-date')), $(this).attr('data-next'));
+                $(this).html('<i style="font-size: 80%;font-weight: normal;">('+date+')</i>');
+                **/
+                var itme = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?option=postajax&view=getajax',
+                    data: {'task': 'getDepartureDay', 'start' : $.trim(itme.attr('data-date')), 'step': itme.attr('data-next')},
+                    dataType: 'html',
+                    success: function(result){
+                        $('.ajax-overlay').hide();
+                        $('.ajax-loading').hide();
+                        itme.html('<i style="font-size: 80%;font-weight: normal;">('+result+')</i>');
+                    }
+                });
+            });
+        });
+
+        function setEventAddDay(){
+            $('#quotation-list').find('.del-journey').unbind('click').click(function(){
+                $(this).parents('fieldset').remove();
+                $('#quotation-list fieldset').each(function(index){ $(this).attr('id', 'day-'+index).attr('item', index); });
+                $('#quotation-list legend button').each(function(index){ $(this).attr('id', 'del-journey-'+index); });
+                $('#quotation-list legend label').each(function(index){ $(this).html('# {/literal}{#DAY#}{literal} '+(index+1)); });
+                group.find('.tooltip').remove();
+            });
+        }
+
+        function setWidthChosen(){
+            $('select.detail, select.profile').parent().find('.chosen-container .chosen-drop').css({'min-width': 400});
+        }
+
+        function setAddService(){
+            $('button.add-service').unbind('click').click(function(){
+                var group = $(this).parents('.row').parent();
+                var ditem = group.attr('item');
+
+                group.find('#service-list').append($('#price-sample').html());
+                group.find('#service-list').find('select.form-control-').removeClass('form-control-').addClass('form-control').chosen();
+                group.find('#service-list >div').each(function(index){
+                    if ($(this).is(':last-child')){
+                        var markup = $('#markup').val();
+                        var convert = $('#conversion').val();
+                        var discount = $('#discount').val();
+
+                        $(this).find('select.location').empty().append('<option value=""></option>');
+                        if (group.find('input.f_location').val()) $(this).find('select.location').append('<option value="'+group.find('input.f_location').val()+'">'+group.find('input.f_name').val()+'</option>')
+                        if (group.find('input.t_location').val()) $(this).find('select.location').append('<option value="'+group.find('input.t_location').val()+'">'+group.find('input.t_name').val()+'</option>')
+                        $(this).find('select.location').trigger("chosen:updated");
+                    }
+
+                    $(this).attr('id', 'service-item-'+index);
+                    $(this).find('label').each(function(i){ $(this).attr('for', 'control-'+ditem+'-'+index+'-'+i); });
+                    $(this).find('select.form-control, input.form-control, input.ajax-value').each(function(i){
+                        var field = $(this).attr('field');
+                        $(this).attr('id', 'control-'+ditem+'-'+index+'-'+i).attr('name', 'vdata['+field+']['+ditem+']['+index+']');
+                        if (typeof convert != 'undefined' && field == 'conversion') $(this).val(convert);
+                        if (typeof markup != 'undefined' && field == 'markup') $(this).val(markup);
+                        if (typeof discount != 'undefined' && field == 'discount') $(this).val(discount);
+                    });
+
+                    $(this).find('.del-service').attr('item', 'service-item-'+index);
+                    $(this).find('.dup-service').attr('item', 'service-item-'+index);
+
+                    setDelService();
+                    setDupService();
+                    setWidthChosen();
+                });
+                setEventSelect();
+                setSaveService();
+                group.find('.tooltip').remove();
+            });
+        }
+
+        function setDelService(){
+            $('button.del-service').unbind('click').on('click', function(){
+                var ditem = $(this).parents('fieldset').attr('item');
+                var group = $(this).parents('#service-list');
+                group.find('>div#'+$(this).attr('item')).remove();
+                group.find('>div').each(function(k){
+                    $(this).find('.del-service').attr('item', 'service-item-'+k);
+
+                    $(this).attr('id', 'service-item-'+k);
+                    $(this).find('label').each(function(i){ $(this).attr('for', 'control-'+ditem+'-'+k+'-'+i); });
+                    $(this).find('select.form-control, input.form-control, input.ajax-value').each(function(i){
+                        var field = $(this).attr('field');
+                        $(this).attr('id', 'control-'+ditem+'-'+k+'-'+i).attr('name', 'vdata['+field+']['+ditem+']['+k+']');
+                    });
+                });
+                group.find('.tooltip').remove();
+            });
+        }
+
+        function setDupService(){
+            $('button.dup-service').unbind('click').on('click', function(){
+                var ditem = $(this).parents('fieldset').attr('item');
+                var group = $(this).parents('#service-list');
+                group.append(group.find('>div#'+$(this).attr('item')).clone().wrap('<div />').parent().html());
+                group.find('>div').each(function(k){
+                    $(this).find('.dup-service').attr('item', 'service-item-'+k);
+                    $(this).find('.del-service').attr('item', 'service-item-'+k);
+
+                    $(this).attr('id', 'service-item-'+k);
+                    $(this).find('label').each(function(i){ $(this).attr('for', 'control-'+ditem+'-'+k+'-'+i); });
+                    $(this).find('select.form-control, input.form-control, input.ajax-value').each(function(i){
+                        var field = $(this).attr('field');
+                        $(this).attr('id', 'control-'+ditem+'-'+k+'-'+i).attr('name', 'vdata['+field+']['+ditem+']['+k+']');
+                    });
+
+                    if ($(this).is(':last-child')){
+                        $(this).find('input[type="hidden"]').each(function(){ if (!$(this).hasClass('ajax-value')) $(this).remove(); });
+                        $(this).find('.chosen-container').remove();
+                        $(this).find('select.form-control').show().chosen();
+                    }
+
+
+                    setDupService();
+                    setDelService();
+                    setEventSelect();
+                    setWidthChosen();
+                    setSaveService();
+                });
+                group.find('.tooltip').remove();
+            });
+        }
+
+        function setSaveService(){
+            $('button.sav-service').unbind('click').on('click', function(){
+                var field = $(this).parents('fieldset');
+                var ditem = $(this).parents('fieldset').attr('item');
+                var group = $(this).parents('div[id*="service-item"]');
+                $('.ajax-overlay').show();
+                $('.ajax-loading').show();
+
+                /**
+                if (qid){
+                    var datas = field.find('input[name],select[name],textarea[name]').serialize();
+                    var links = 'index.php?option=extquotation&view=callajax&task=setServiceItem&ajax=1&cid[]='+qid;
+                } else {
+                    $('form[name="frmExtQuotation"]').find('input#task').val('setServiceItem');
+                    var datas = $('form[name="frmExtQuotation"]').serialize();
+                    var links = 'index.php?option=extquotation&view=callajax&task=setServiceItem&ajax=1';
+                }
+                **/
+
+                $('form[name="frmExtQuotation"]').find('input#task').val('setServiceItem');
+                var datas = $('form[name="frmExtQuotation"]').serialize();
+                var links = 'index.php?option=extquotation&view=callajax&task=setServiceItem&ajax=1&cid[]='+qid;
+
+                $.ajax({
+                    type: "POST",
+                    url: links,
+                    data: datas,
+                    dataType: 'json',
+                    success: function(result){
+                        $('.ajax-overlay').hide();
+                        $('.ajax-loading').hide();
+
+                        alert(result.message);
+                        if (!qid)
+                            window.location = 'index.php?option=extquotation&view=form&cid[]='+result.newid;
+                    }
+                });
+
+                group.find('.tooltip').remove();
+            });
+        }
+
+        function setEventSelect(){
+            $(document).unbind('click').click(function(event){
+                $('.ajax-result').removeClass('visable').hide();
+                $('.ajax-search').each(function(){ $(this).val($(this).attr('item')); });
+            });
+
+            $('input.f_name, input.t_name').unbind('keyup').keyup(function(){
+                var parent = $(this).parent();
+                parent.find('.ajax-result').load("index.php?option=extquotation&view=callajax&task=getLocation&ajax=1", {
+                    value: $(this).val()
+                }, function () {
+                    parent.find('.ajax-result').addClass('visable').show().unbind('click').click(function(e){ return false; });
+                    parent.find('.ajax-result a').unbind('click').click(function(){
+                        parent.find('input.ajax-value').val($(this).attr('item'));
+                        parent.find('input.ajax-search').val($(this).text()).attr('item', $(this).text());
+                        parent.find('.ajax-result').hide();
+
+                        var group = $(this).parents('.row').parent();
+                        group.find('select.location').empty()
+                                .append('<option value=""></option>')
+                                .append('<option value="'+group.find('input.f_location').val()+'">'+group.find('input.f_name').val()+'</option>')
+                                .append('<option value="'+group.find('input.t_location').val()+'">'+group.find('input.t_name').val()+'</option>')
+                                .trigger("chosen:updated");
+
+                        group.find('table tbody td').html(0);
+                        group.find('input.profile').val('').attr('item', '');
+                        group.find('input.detail').val('').attr('item', '');
+                        group.find('input.profile_id').val('').attr('item', '');
+                        group.find('input.detail_id').val('').attr('item', '');
+                    });
+                });
+            }).click(function(e){
+                $('.ajax-result').removeClass('visable');
+                $(this).parent().find('.ajax-result').addClass('visable')
+                $('.ajax-result').each(function(){ if (!$(this).hasClass('visable')) $(this).hide(); });
+                $('.ajax-search').each(function(){ $(this).val($(this).attr('item')); });
+                return false;
+            });
+
+            $('select.service, select.location').unbind('change').change(function(){
+                var group = $(this).parents('.row');
+                group.find('table tbody td').html(0);
+                group.find('input.ajax-search').val('').attr('item', '');
+                group.find('input.ajax-value').val('').attr('item', '');
+            });
+
+            $('input.profile').unbind('keyup').keyup(function(){
+                var parent  = $(this).parent();
+                var today   = $(this).parents('fieldset').attr('item');
+                var group   = $(this).parents('.row');
+
+                parent.find('.ajax-result').load("index.php?option=extquotation&view=callajax&task=getParentServices&ajax=1", {
+                    value: $(this).val(), genre: group.find('select.service option:selected').val(), location: group.find('select.location option:selected').val()
+                }, function () {
+                    parent.find('.ajax-result').addClass('visable').show().unbind('click').click(function(e){ return false; });
+                    parent.find('.ajax-result a').unbind('click').click(function(){
+                        parent.find('input.ajax-value').val($(this).attr('item'));
+                        parent.find('input.ajax-search').val($(this).text()).attr('item', $(this).text());
+                        parent.find('.ajax-result').hide();
+
+                        group.find('table tbody td').html(0);
+                        group.find('input.detail').val('').attr('item', '');
+                        group.find('input.detail_id').val('').attr('item', '');
+                    });
+                });
+            }).click(function(e){
+                $('.ajax-result').removeClass('visable');
+                $(this).parent().find('.ajax-result').addClass('visable')
+                $('.ajax-result').each(function(){ if (!$(this).hasClass('visable')) $(this).hide(); });
+                $('.ajax-search').each(function(){ $(this).val($(this).attr('item')); });
+                return false;
+            });
+
+            $('input.detail').unbind('keyup').keyup(function(){
+                var parent  = $(this).parent();
+                var today   = $(this).parents('fieldset').attr('item');
+                var group   = $(this).parents('.row');
+
+                parent.find('.ajax-result').load("index.php?option=extquotation&view=callajax&task=getChildrenService&ajax=1", {
+                    genre: group.find('select.service option:selected').val(), parent: group.find('input.profile_id').val(),
+                    arrival: $('input#departure').val(), paxgroup: $('select#paxgroup').val(), today: today, value: $(this).val()
+                }, function(){
+                    parent.find('.ajax-result').addClass('visable').show().unbind('click').click(function(e){ return false; });
+                    parent.find('.ajax-result a').unbind('click').click(function(){
+                        parent.find('input.ajax-value').val($(this).attr('item'));
+                        parent.find('input.ajax-search').val($(this).text()).attr('item', $(this).text());
+                        parent.find('.ajax-result').hide();
+
+                        group.find('table tbody').load("index.php?option=extquotation&view=callajax&task=getDetailService&ajax=1", {
+                            genre: group.find('select.service option:selected').val(),
+                            parent: group.find('input.profile_id').val(),
+                            convert: group.find('input.conversion').val(),
+                            person: $('select#paxgroup').val(),
+                            day: group.parents('fieldset').attr('item'),
+                            num: parseInt(group.parents('[id*="service-item-"]').attr('id').replace('service-item-', '')),
+                            id: group.find('input.detail_id').val(),
+                            issing: $('select#pricefor').val()
+                        }, function(){
+                            setEventSelect();
+                        });
+                    });
+                });
+            }).click(function(e){
+                $('.ajax-result').removeClass('visable');
+                $(this).parent().find('.ajax-result').addClass('visable')
+                $('.ajax-result').each(function(){ if (!$(this).hasClass('visable')) $(this).hide(); });
+                $('.ajax-search').each(function(){ $(this).val($(this).attr('item')); });
+                return false;
+            });
+
+            var valpre = 0;
+            $('input.conversion, input.price').unbind('focus').focus(function(){
+                valpre = number_format($(this).val(), 2, '.', '');
+            });
+            $('input.conversion, input.price').unbind('blur').blur(function(){
+                $(this).attr('value', $(this).val());
+                if (!$(this).hasClass('error')) {
+                    var group = $(this).parents('.row');
+                    if (group.find('select.detail option:selected').val() > 0) {
+                        group.find('table tbody').load("index.php?option=extquotation&view=callajax&task=getDetailService&ajax=1", {
+                            genre: group.find('select.service option:selected').val(),
+                            parent: group.find('input.profile_id').val(),
+                            convert: group.find('input.conversion').val(),
+                            person: $('select#paxgroup').val(),
+                            price: $(this).hasClass('price') ? number_format(group.find('input.price').val(), 2, '.', '') : 0,
+                            day: group.parents('fieldset').attr('item'),
+                            num: parseInt(group.parents('[id*="service-item-"]').attr('id').replace('service-item-', '')),
+                            id: group.find('input.detail_id').val(),
+                            issing: $('select#pricefor').val()
+                        }, function () {
+                            setEventSelect();
+                        });
+                    }
+                }
+            });
+
+            $('select#pricefor').unbind('change').change(function(){
+                $('select.detail').each(function(){
+                    var group = $(this).parents('.row');
+                    group.find('table tbody').load("index.php?option=extquotation&view=callajax&task=getDetailService&ajax=1", {
+                        genre: group.find('select.service option:selected').val(),
+                        parent: group.find('select.profile option:selected').val(),
+                        convert: group.find('input.conversion').val(),
+                        person: $('select#paxgroup').val(),
+                        day: group.parents('fieldset').attr('item'),
+                        num: parseInt(group.parents('[id*="service-item-"]').attr('id').replace('service-item-', '')),
+                        id: group.find('select.detail option:selected').val(),
+                        issing: $('select#pricefor').val()
+                    }, function(){
+                        setEventSelect();
+                    });
+                });
+            });
+
+            //$('[data-toggle="tooltip"]').tooltip();
+        }
+
+        $('#quotation-list span.show-date').each(function(){
+            /**
+            var date = getNextToDay($(this).data('date'), $(this).data('next'));
+            $(this).html('<i style="font-size: 80%;font-weight: normal;">('+date+')</i>');
+            **/
+            var itme = $(this);
+            $.ajax({
+                type: "POST",
+                url: 'index.php?option=postajax&view=getajax',
+                data: {'task': 'getDepartureDay', 'start' : itme.data('date'), 'step': itme.data('next')},
+                dataType: 'html',
+                success: function(result){
+                    $('.ajax-overlay').hide();
+                    $('.ajax-loading').hide();
+                    itme.html('<i style="font-size: 80%;font-weight: normal;">('+result+')</i>');
+                }
+            });
+        });
+    });
+
+    function getNextToDay(start, step){
+        $.ajax({
+            type: "POST",
+            url: 'index.php?option=postajax&view=getajax',
+            data: {'task': 'getDepartureDay', 'start' : start, 'step': step},
+            dataType: 'html',
+            success: function(result){
+                $('.ajax-overlay').hide();
+                $('.ajax-loading').hide();
+            }
+        });
+
+        /**
+        var d = new Date();
+        var p = start.split('-');
+        d.setFullYear(p[2], p[1]-1, p[0]); // year, month (0-based), day
+        var e = new Date(d.getTime() + (parseInt(step)*86400000));
+
+        return (e.getDate() > 9 ? e.getDate() : '0'+e.getDate()) + "-" + ((e.getMonth()+1) > 9 ? e.getMonth()+1 : '0'+ (e.getMonth()+1)) + '-' + e.getFullYear();
+        **/
+    }
+</script>
+{/literal}

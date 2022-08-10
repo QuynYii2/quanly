@@ -1,0 +1,124 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	$("#introlang").accordion();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('select').removeClass('required');
+		$('textarea').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmComfort" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="comfort"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#COMFORT_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="shorttext_{$items.code}">{#COMFORT_SHORT#}: </label>              
+						<textarea id="shorttext_{$items.code}" name="vform[shorttext][{$items.code}]" class="inputbox {if $key eq 0}required{/if}">{$ObjectLang[$items.code].shorttext}</textarea>
+						<div class="clear"></div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+
+			<div class="block">
+				<label for="price">{#COMFORT_PRICE#}:</label>
+				<input type="text" id="price" name="vform[price]" class="inputbox number" value="{$ObjectData.price}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="discount">{#COMFORT_DISCOUNT#}:</label>
+				<input type="text" id="discount" name="vform[discount]" class="inputbox number" style="width: 100px;" value="{$ObjectData.discount}"/>
+				<select id="percent" name="vform[percent]" class="inputbox">
+					<option value="0" {if $ObjectData.percent eq 0}selected="selected"{/if}>{#COMFORT_DIS_OP0#}</option>
+					<option value="1" {if $ObjectData.percent eq 1}selected="selected"{/if}>{#COMFORT_DIS_OP1#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+	<!-- 
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#COMFORT_INTRO#}</legend>
+			<br/>
+			<div id="introlang">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>{$Introtext[$items.code]}</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	 -->
+</form>

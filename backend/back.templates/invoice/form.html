@@ -1,0 +1,591 @@
+{literal}
+<script invoice="javascript" type="text/javascript">
+    // American Numbering System
+    var th = ['', 'thousand', 'million', 'billion', 'trillion'];
+
+    var dg = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+
+    var tn = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+
+    var tw = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function toWords(s) {
+        s = s.toString();
+        s = s.replace(/[\, ]/g, '');
+        if (s != parseFloat(s)) return 'not a number';
+        var x = s.indexOf('.');
+        if (x == -1) x = s.length;
+        if (x > 15) return 'too big';
+        var n = s.split('');
+        var str = '';
+        var sk = 0;
+        for (var i = 0; i < x; i++) {
+            if ((x - i) % 3 == 2) {
+                if (n[i] == '1') {
+                    str += tn[Number(n[i + 1])] + ' ';
+                    i++;
+                    sk = 1;
+                } else if (n[i] != 0) {
+                    str += tw[n[i] - 2] + ' ';
+                    sk = 1;
+                }
+            } else if (n[i] != 0) {
+                str += dg[n[i]] + ' ';
+                if ((x - i) % 3 == 0) str += 'hundred ';
+                sk = 1;
+            }
+            if ((x - i) % 3 == 1) {
+                if (sk) str += th[(x - i - 1) / 3] + ' ';
+                sk = 0;
+            }
+        }
+        if (x != s.length) {
+            var y = s.length;
+            str += 'point ';
+            for (var i = x + 1; i < y; i++) str += dg[n[i]] + ' ';
+        }
+        return jQuery.trim(str.replace(/\s+/g, ' '));
+
+    }
+
+    function capitalize(str) {
+        strVal = '';
+        str = str.split(' ');
+        for (var chr = 0; chr < str.length; chr++) {
+            strVal += str[chr].substring(0, 1).toUpperCase() + str[chr].substring(1, str[chr].length) + ' '
+        }
+        return strVal
+    }
+
+    jQuery(document).ready(function($) {
+        $("#form-admin").validate();
+        $('.date-time').datetimepicker({
+            showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+            dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+        });
+        $('.time-only').timepicker();
+
+        $('a.toolbar[task="cancel"]').click(function(){
+            $('input').removeClass('required');
+            $('input#task').val('cancel');
+            $('form.form-admin').submit();
+        });
+
+        $('a.remimage').click(function(){
+            $(this).remove();
+            $('img#itemimage').remove();
+            $('input#remimage').val($(this).attr('image'));
+        });
+
+        function getQuotation(){
+            $('select.quotation').unbind('change').change(function(){
+                if ($(this).val()) {
+                    var obj = $(this);
+                    $.ajax({
+                        type: "POST",
+                        url: 'index.php?option=invoice&view=callajax&task=getQuotation&ajax=1',
+                        data: { qid: $(this).val() },
+                        dataType: 'json',
+                        success: function(result){
+                            $('input#paxno').val(result.paxrange);
+                            $('input#night').val(result.numday);
+                            $('input#fperiod').val(result.departure);
+                            $('input#tperiod').val(result.arrival);
+                            $('input#guest').val(result.name);
+
+                            var parent = $('#quotation-list tbody tr');
+                            parent.find('td.night').html(result.numday);
+                            parent.find('td.quantity').html(1);
+                            parent.find('td.price').html(number_format(result.total, 2, '.', ''));
+                            parent.find('td.currency').html('USD');
+                            parent.find('td.amount').html(number_format(result.total, 2, '.', ''))
+                                    .attr('profit', number_format(result.profit, 2, '.', ''))
+                                    .attr('paid', number_format(result.paid, 2, '.', ''));
+                            getTotal();
+                            getResidual();
+                        }
+                    });
+                }
+            });
+        }
+
+        function setAgency(gid, qid){
+            if (typeof gid != 'undefined' && gid && gid != 'null') {
+                $.ajax({
+                    type: "POST",
+                    url: 'index.php?option=invoice&view=callajax&task=getAgency&ajax=1',
+                    data: { aid: gid },
+                    dataType: 'json',
+                    success: function(result){
+                        $('#company').val(result.name);
+                        $('#phone').val(result.phone);
+                        $('#faxno').val(result.faxno);
+                        $('#email').val(result.email);
+                        $('#website').val(result.website);
+                        $('#address').val(result.address);
+                        $('select.quotation').load("index.php?option=invoice&view=callajax&task=getAccounting&ajax=1", {
+                            aid: result.id
+                        }, function(){
+                            if (typeof qid != 'undefined' && qid && qid != 'null') {
+                                $('select.quotation option[value="' + qid + '"]').prop('selected',true).change();
+                                $(this).parent().find('.chosen-container').hide();
+                                $(this).parent().append('<label class="form-control">'+$('select.quotation option[value="' + qid + '"]').text()+'</label>');
+                                $('div#agency_chosen').hide().parent().append('<label class="form-control">'+$('select#agency option[value="' + gid + '"]').text()+'</label>');
+                            }
+                            $(this).trigger("chosen:updated");
+                        });
+                    }
+                });
+            }
+        }
+
+        $('select#agency').change(function(){ setAgency($(this).val()); });
+
+        getTotal();
+        delQuotation();
+        getQuotation();
+        function delQuotation(){
+            $('button.del-quotation').unbind('click').click(function(){
+                $(this).parents('tr').fadeOut().remove();
+                getTotal();
+            });
+        }
+
+        $('button.add-quotation').unbind('click').click(function(){
+            if ($('select.quotation').length < 1){
+                $('#quotation-list tbody').append('<tr>'+$('.quotation-sample').html()+'</tr>');
+                $('#quotation-list').find('select.form-control-').removeClass('form-control-').addClass('form-control').chosen();
+            }
+            delQuotation();
+            getQuotation();
+        });
+
+        delIntrotext();
+        addIntrotext();
+        function delIntrotext(){
+            $('button.del-desc').unbind('click').click(function(){
+                $(this).parent().parent().remove();
+                getResidual();
+            });
+        }
+
+        function addIntrotext(){
+            $('button.add-desc').unbind('click').click(function(){
+                var total = 0;
+                var price = 0;
+                $('#quotation-list tbody td.amount').each(function(){
+                    total+= parseFloat($(this).text());
+                });
+                $('#introtext-list tbody tr').find('input.amount').each(function(){
+                    price+= parseFloat($(this).val());
+                });
+
+                if (price >= total) return false;
+
+                var html = '';
+                html+= '<tr>'
+                html+= '    <td width="55%">';
+                html+= '        <input type="text" name="intro[intro][]" class="form-control intro" placeholder="{/literal}{#INV_INTROTEXT#}{literal}">';
+                html+= '    </td>';
+                html+= '    <td>';
+                html+= '        <input type="text" name="intro[amount][]" class="form-control amount" amount="0" autocomplete="off" placeholder="{/literal}{#INV_AMOUNT#}{literal}">';
+                html+= '    </td>';
+                html+= '    <td class="text-right">';
+                html+= '        <button class="btn btn-success add-desc" type="button"><i class="glyphicon glyphicon-plus"></i></button>';
+                html+= '        <button class="btn btn-danger del-desc" type="button"><i class="glyphicon glyphicon-remove"></i></button>';
+                html+= '    </td>';
+                html+= '</tr>';
+                $('#introtext-list tbody').append('<tr>'+html+'</tr>');
+                addIntrotext();
+                delIntrotext();
+                setAmount();
+            });
+        }
+        setAmount();
+        getResidual();
+        function IsNumeric(input)
+        {
+            return (input - 0) == input && (''+input).trim().length > 0;
+        }
+
+        function setAmount(){
+            $('#introtext-list input.amount').unbind('keyup').keyup(function(){
+                if (!IsNumeric($(this).val()) && $.trim($(this).val())){
+                    $(this).val($(this).attr('amount'));
+                    return false;
+                }
+                var total = 0;
+                var price = 0;
+                $('#quotation-list tbody td.amount').each(function(){
+                    total+= parseFloat($(this).text());
+                });
+                $('#introtext-list tbody tr').find('input.amount').each(function(){
+                    var amount = $(this).val() ? $(this).val() : 0;
+                    price+= parseFloat(amount);
+                });
+
+                if (price > total){
+                    $(this).val($(this).attr('amount'));
+                } else {
+                    $(this).attr('amount', $(this).val());
+                    $('p.residual span').text(number_format(total-price, 2, '.', ''));
+                }
+            });
+        }
+
+        function getResidual(){
+            var total = 0;
+            var price = 0;
+            $('#quotation-list tbody td.amount').each(function(){
+                total+= parseFloat($(this).text());
+            });
+            $('#introtext-list tbody tr').find('input.amount').each(function(){
+                var amount = $(this).val() ? $(this).val() : 0;
+                price+= parseFloat(amount);
+            });
+            $('p.residual span').text(number_format(total-price, 2, '.', ''));
+        }
+
+        function getTotal(){
+            var total = 0; var profit = 0; var paid = 0;
+            $('#quotation-list tbody td.amount').each(function(){
+                total+= parseFloat($(this).text());
+                profit+= parseFloat($(this).attr('profit'));
+                paid+= parseFloat($(this).attr('paid'));
+            });
+            $('#quotation-list tfoot td.before').text(number_format(total-profit, 2, '.', ''));
+            $('#quotation-list tfoot td.vat').text(number_format(profit, 2, '.', ''));
+            $('#quotation-list tfoot td.total').text(number_format(total, 2, '.', ''));
+            $('#quotation-list tfoot td.receivable').text(number_format(paid, 2, '.', ''));
+            if (total >= paid){
+                $('#quotation-list tfoot td.balance').text(number_format(total-paid, 2, '.', ''));
+            } else {
+                $('#quotation-list tfoot td.balance').text('+'+number_format(paid-total, 2, '.', ''));
+            }
+
+            $('input#awords').val(capitalize(toWords(total)));
+        }
+
+        {/literal}{php}if (Generals::getVar('gid')):{/php}{literal}
+
+        var gid = parseInt("{/literal}{php}echo Generals::getVar('gid');{/php}{literal}");
+        var qid = parseInt("{/literal}{php}echo Generals::getVar('qid');{/php}{literal}");
+        $('select#agency option[value="' + gid + '"]').prop('selected',true);
+        $('select#agency').trigger("chosen:updated");
+        setAgency(gid, qid);
+
+        {/literal}{php}endif;{/php}{literal}
+    });
+</script>
+{/literal}
+
+<form action="" method="post" name="frmInvoice" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+    <input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="invoice"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="agency">{#INV_AGENCY#}: </label>
+                    <select id="agency" name="vform[agency]" class="form-control">
+                        <option value="">{#INV_AGENCY_SELECT#}</option>
+                        {foreach item=items from=$Agencies}
+                        <option value="{$items.id}" {if $items.id eq $ObjectData.agency}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label for="agency">{#INV_QUOTATION#}: </label>
+                {if count($ObjectData.introtext.quote) gt 0}
+                {foreach item=quotation from=$ObjectData.introtext.quote}
+                <select name="vform[quotation][]" class="form-control quotation">
+                    <option value="">{#INV_QUOTATION_SELECT#}</option>
+                    {foreach item=items from=$Quotations}
+                    <option item="{$items.paxrange}" value="{$items.id}" {if $items.id eq $quotation.id}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                    {/foreach}
+                </select>
+                {/foreach}
+                {else}
+                <select name="vform[quotation][]" class="form-control quotation">
+                    <option value="">{#INV_QUOTATION_SELECT#}</option>
+                    {foreach item=items from=$Quotations}
+                    <option item="{$items.paxrange}" value="{$items.id}" {if in_array($items.id, $ObjectData.quotation)}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                    {/foreach}
+                </select>
+                {/if}
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="paxno">{#INV_PAXNO#}:</label>
+                    <input type="text" id="paxno" name="vform[paxno]" value="{$ObjectData.paxno}" class="form-control required number"/>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="published">{#PUBLISHED#}: </label>
+                    <select id="published" name="vform[published]" class="form-control">
+                        <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                        <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="invoiceno">{#INV_INVOINO#}:</label>
+                    <input type="text" id="invoiceno" name="vform[invoiceno]" value="{$ObjectData.invoiceno}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="manager">{#INV_MANAGER#}:</label>
+                    <input type="text" id="manager" name="vform[manager]" value="{$ObjectData.manager}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label>{#INV_REFERNO#}:</label>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="issued_on">{#INV_ISSUED_ON#}:</label>
+                            <input type="text" id="issued_on" name="vform[issued_on]" value="{$ObjectData.issued_on|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="issued_by">{#INV_ISSUED_BY#}:</label>
+                            <input type="text" id="issued_by" name="vform[issued_by]" value="{$ObjectData.issued_by}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="fperiod">{#INV_PRERIOD#}:</label>
+                            <input type="text" id="fperiod" name="vform[fperiod]" value="{$ObjectData.fperiod|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="tperiod">&nbsp;</label>
+                            <input type="text" id="tperiod" name="vform[tperiod]" value="{$ObjectData.tperiod|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="company">{#INV_COMPANY#}:</label>
+                            <input type="text" id="company" name="vform[company]" value="{$ObjectData.company}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="phone">{#INV_PHONE#}:</label>
+                            <input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="faxno">{#INV_FAXNO#}:</label>
+                            <input type="text" id="faxno" name="vform[faxno]" value="{$ObjectData.faxno}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="email">{#INV_EMAIL#}:</label>
+                            <input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="form-control required email"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="website">{#INV_WEBSITE#}:</label>
+                            <input type="text" id="website" name="vform[website]" value="{$ObjectData.website}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="guest">{#INV_GUEST#}:</label>
+                            <input type="text" id="guest" name="vform[guest]" value="{$ObjectData.guest}" class="form-control required"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="address">{#INV_ADDRESS#}:</label>
+                    <input type="text" id="address" name="vform[address]" value="{$ObjectData.address}" class="form-control required"/>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label for="night">{#INV_NIGHT#}:</label>
+                    <input type="text" id="night" name="vform[night]" value="{$ObjectData.night}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="payment">{#INV_PAYMENT#}: </label>
+                    <select id="payment" name="vform[payment]" class="form-control">
+                        <option value="">{#INV_PAYMENT_SELECT#}</option>
+                        {foreach item=items from=$Payments}
+                        <option value="{$items.id}" {if $items.id eq $ObjectData.payment}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="due_date">{#INV_DUE_DATE#}:</label>
+                    <input type="text" id="due_date" name="vform[due_date]" value="{$ObjectData.due_date|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                <table id="introtext-list" class="table">
+                    <thead>
+                    <tr>
+                        <th class="text-left" colspan="2">{#INV_ITEM_DESC#}</th>
+                        <th class="text-right">
+                            <button class="btn btn-success add-desc" type="button"><i class="glyphicon glyphicon-plus"></i></button>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {if count($ObjectData.introtext.intro.intro) gt 0}
+                    {foreach key=key item=intro from=$ObjectData.introtext.intro.intro}
+                    <tr>
+                        <td width="55%">
+                            <input type="text" name="intro[intro][]" class="form-control intro" placeholder="{#INV_INTROTEXT#}" value="{$intro}">
+                        </td>
+                        <td>
+                            <input type="text" name="intro[amount][]" amount="{$ObjectData.introtext.intro.amount[$key]}" autocomplete="off" class="form-control amount" placeholder="{#INV_AMOUNT#}" value="{$ObjectData.introtext.intro.amount[$key]}">
+                        </td>
+                        <td class="text-right">
+                            <button class="btn btn-success add-desc" type="button"><i class="glyphicon glyphicon-plus"></i></button>
+                            <button class="btn btn-danger del-desc" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
+                    </tr>
+                    {/foreach}
+                    {else}
+                    <tr>
+                        <td width="55%">
+                            <input type="text" name="intro[intro][]" class="form-control intro" placeholder="{#INV_INTROTEXT#}">
+                        </td>
+                        <td>
+                            <input type="text" name="intro[amount][]" amount="0" class="form-control amount" autocomplete="off" placeholder="{#INV_AMOUNT#}">
+                        </td>
+                        <td class="text-right">
+                            <button class="btn btn-success add-desc" type="button"><i class="glyphicon glyphicon-plus"></i></button>
+                            <button class="btn btn-danger del-desc" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                        </td>
+                    </tr>
+                    {/if}
+                    </tbody>
+                </table>
+                <p class="bg-danger text-right residual" style="padding: 5px 10px;font-weight: bold;">{#INV_RESIDUAL#}: <span>0.00</span></p>
+            </div>
+            <div class="col-sm-6">
+                <table id="quotation-list" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th class="text-center">{#INV_ITEM_NIGHT#}</th>
+                        <th class="text-center">{#INV_ITEM_QTY#}</th>
+                        <th class="text-center">{#INV_ITEM_PRICE#}</th>
+                        <th class="text-center">{#INV_ITEM_CURRENCY#}</th>
+                        <th class="text-center">{#INV_ITEM_AMOUNT#}</th>
+                        <!--
+                        <th class="text-right"><button class="btn btn-success add-quotation" type="button"><i class="glyphicon glyphicon-plus"></i></button></th>
+                        -->
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {if count($ObjectData.introtext.quote) gt 0}
+                    {foreach item=quotation from=$ObjectData.introtext.quote}
+                    <tr>
+                        <td class="night text-center">{$quotation.numday}</td>
+                        <td class="quantity text-center">1</td>
+                        <td class="price text-center">{$quotation.total}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="amount text-center" profit="{$quotation.profit}" paid="{$quotation.paid}">{$quotation.total}</td>
+                        <!--
+                        <td class="text-right"><button class="btn btn-danger del-quotation" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>
+                        -->
+                    </tr>
+                    {/foreach}
+                    {else}
+                    <tr>
+                        <td class="night text-center"></td>
+                        <td class="quantity text-center"></td>
+                        <td class="price text-center"></td>
+                        <td class="currency text-center"></td>
+                        <td class="amount text-center"></td>
+                        <!--
+                        <td class="text-right"><button class="btn btn-danger del-quotation" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>
+                        -->
+                    </tr>
+                    {/if}
+                    </tbody>
+                    <tfoot>
+                    <!--
+                    <tr>
+                        <td colspan="3" class="text-right" style="font-weight: bold;">{#INV_BEFORE_VAT#}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="before text-center">{$quotation.total}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right" style="font-weight: bold;">{#INV_VAT#}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="vat text-center">0.00</td>
+                    </tr>
+                    -->
+                    <tr>
+                        <td colspan="3" class="text-right" style="font-weight: bold;">{#INV_TOTAL#}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="total text-center">0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right" style="font-weight: bold;">{#INV_RECEIVABLE#}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="receivable text-center">0.00</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right" style="font-weight: bold;">{#INV_BALANCE#}</td>
+                        <td class="currency text-center">USD</td>
+                        <td class="balance text-center">0.00</td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="awords">{#INV_AMOUNT_WORD#}:</label>
+            <input type="text" id="awords" name="vform[awords]" value="{$ObjectData.awords}" class="form-control required" readonly/>
+        </div>
+	</fieldset>
+</form>
+<!--
+<table style="display: none;">
+    <tr class="quotation-sample">
+        <td class="quotation">
+            <select name="vform[quotation][]" class="form-control- quotation">
+                <option value="">{#INV_QUOTATION_SELECT#}</option>
+                {foreach item=items from=$Quotations}
+                <option item="{$items.paxrange}" value="{$items.id}">{$items.code} - {$items.name}</option>
+                {/foreach}
+            </select>
+        </td>
+        <td class="night text-center"></td>
+        <td class="quantity text-center"></td>
+        <td class="price text-center"></td>
+        <td class="currency text-center"></td>
+        <td class="amount text-center"></td>
+        <td class="text-right"><button class="btn btn-danger" type="button"><i class="glyphicon glyphicon-remove"></i></button></td>
+    </tr>
+</table>
+-->

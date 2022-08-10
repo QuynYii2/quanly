@@ -1,0 +1,75 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_search').val('');
+		$('#filter_f_date').val('');
+        $('#filter_t_date').val('');
+        $('#filter_userid').val('');
+		$('#frm-admin').submit();
+	});
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+
+    var highlight = '{/literal}{$highlight}{literal}';
+    if (highlight){
+        $('div#log'+highlight).find('>div >.bg-primary >a.highlight').addClass('glowing');
+        $("html,body").animate({scrollTop: $('#log'+highlight).position().top}, 300);
+    }
+});
+</script>
+{/literal}
+
+<form name="frmWritelog" id="frm-admin" action="index.php?option=writelog&view=list" method="get" class="form-admin form-inline" style="position: relative;">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="writelog"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div class="form-group">
+            <label for="filter_search">{#TITLE_SEARCH#}:</label>
+            <input type="text" class="form-control" name="filter_search" id="filter_search" value="{$FormSearch.filter_search}" placeholder="{#KEYWORD#}">
+        </div>
+        <div class="form-group">
+            <select name="filter_userid" id="filter_userid" class="form-control">
+                <option value="" selected="selected">{#USERID#}</option>
+                {foreach key=key item=items from=$users}
+                <option value="{$items.id}" {if $FormSearch.filter_userid eq $items.id}selected="selected"{/if}>{$items.name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_f_date" id="filter_f_date" value="{$FormSearch.filter_f_date}" placeholder="{#F_DATE#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_t_date" id="filter_t_date" value="{$FormSearch.filter_t_date}" placeholder="{#T_DATE#}" autocomplete="off">
+        </div>
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <div class="row">
+        {foreach item=list from=$DataList}
+        {foreach item=items from=$list}
+        <div id="log{$items.id}" class="col-sm-6">
+            <div style="border: #CCCCCC 1px solid;margin-bottom: 10px;padding-bottom: 5px;position: relative;">
+                <div class="bg-primary" style="padding: 5px 5px;font-size: 13px;font-weight: bold;">
+                    <input type="checkbox" id="cid_{$items.id}" name="cid[]" value="{$items.id}" class="check-id floatleft" style="margin: 5px 5px 0 0;"/>
+                    <label for="cid_{$items.id}" class="floatleft" style="margin: 4px 0;">{$items.title} (ID: {$items.id})</label>
+                    <a class="floatright highlight" href="index.php?option=writelog&view=list&page={$pagenum}&highlight={$items.id}">#No: {$items.index}</a>
+                    <div class="clearfix"></div>
+                </div>
+                <div style="overflow: hidden;padding: 5px;">{$items.introtext}</div>
+                <div style="padding: 0 5px;">{#CREATE_ON#}: {$items.create_on}</div>
+                <div style="padding: 0 5px;">{#CREATE_BY#}: {$items.user_name}</div>
+            </div>
+        </div>
+        {/foreach}
+        {/foreach}
+    </div>
+    <div>{$paging}</div>
+</form>

@@ -1,0 +1,151 @@
+{literal}
+<script usergroup="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+
+    $('#all_simple').change(function(){
+        var checked = $(this).is(':checked');
+        $('.mod_simple').each(function(){ this.checked = checked; });
+    });
+
+    $('#all_detail').change(function(){
+        var checked = $(this).is(':checked');
+        $('.mod_detail').each(function(){ this.checked = checked; });
+    });
+
+    $('#all_create').change(function(){
+        var checked = $(this).is(':checked');
+        $('.mod_create').each(function(){ this.checked = checked; });
+    });
+
+    $('#all_update').change(function(){
+        var checked = $(this).is(':checked');
+        $('.mod_update').each(function(){ this.checked = checked; });
+    });
+
+    $('#all_delete').change(function(){
+        var checked = $(this).is(':checked');
+        $('.mod_delete').each(function(){ this.checked = checked; });
+    });
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmUsergroup" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="usergroup"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="code">{#CODE#}:</label>
+                            <input type="text" id="code" name="vform[code]" value="{$ObjectData.code}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="name">{#TITLE#}:</label>
+                            <input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="form-control required"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="ordering">{#ORDERING#}:</label>
+                            <select id="ordering" name="vform[ordering]" class="form-control">
+                                <option value="0">{#OPTION_FIRST#}</option>
+                                {foreach key = key item = items from = $Ordering }
+                                <option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+                                {/foreach}
+                                <option value="{$items.value+1}">{#OPTION_LAST#}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="published">{#PUBLISHED#}: </label>
+                            <select id="published" name="vform[published]" class="form-control">
+                                <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                                <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="introtext">{#INTROTEXT#}: </label>
+                    <textarea id="introtext" name="vform[introtext]" class="form-control">{$ObjectData.introtext}</textarea>
+                </div>
+            </div>
+        </div>
+	</fieldset>
+    <br/>
+    <fieldset class="adminform">
+        <legend><label>{#PERMISSION#}</label></legend>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>{#MODULE#}</th>
+                <th class="text-center">
+                    <div class="checkbox" style="margin: 0 0;">
+                        <label><input type="checkbox" style="margin-top: 2px;" id="all_simple"> {#SIMPLE#}</label>
+                    </div>
+                </th>
+                <th class="text-center">
+                    <div class="checkbox" style="margin: 0 0;">
+                        <label><input type="checkbox" style="margin-top: 2px;" id="all_detail"> {#DETAIL#}</label>
+                    </div>
+                </th>
+                <th class="text-center">
+                    <div class="checkbox" style="margin: 0 0;">
+                        <label><input type="checkbox" style="margin-top: 2px;" id="all_create"> {#CREATE#}</label>
+                    </div>
+                </th>
+                <th class="text-center">
+                    <div class="checkbox" style="margin: 0 0;">
+                        <label><input type="checkbox" style="margin-top: 2px;" id="all_update"> {#UPDATE#}</label>
+                    </div>
+                </th>
+                <th class="text-center">
+                    <div class="checkbox" style="margin: 0 0;">
+                        <label><input type="checkbox" style="margin-top: 2px;" id="all_delete"> {#REMOVE#}</label>
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach key=value item=label from=$modules}
+            {if $label neq ''}
+            <tr>
+                <td>{$label}</td>
+                <td class="text-center"><input type="checkbox" class="mod_simple" id="mod_simple_{$value}" name="vform[mod_simple][{$value}]" value="1" {if $mod_simple[$value] eq 1}checked="checked"{/if}></td>
+                <td class="text-center"><input type="checkbox" class="mod_detail" id="mod_detail_{$value}" name="vform[mod_detail][{$value}]" value="1" {if $mod_detail[$value] eq 1}checked="checked"{/if}></td>
+                <td class="text-center"><input type="checkbox" class="mod_create" id="mod_create_{$value}" name="vform[mod_create][{$value}]" value="1" {if $mod_create[$value] eq 1}checked="checked"{/if}></td>
+                <td class="text-center"><input type="checkbox" class="mod_update" id="mod_update_{$value}" name="vform[mod_update][{$value}]" value="1" {if $mod_update[$value] eq 1}checked="checked"{/if}></td>
+                <td class="text-center"><input type="checkbox" class="mod_delete" id="mod_delete_{$value}" name="vform[mod_delete][{$value}]" value="1" {if $mod_delete[$value] eq 1}checked="checked"{/if}></td>
+            </tr>
+            {/if}
+            {/foreach}
+            </tbody>
+        </table>
+    </fieldset>
+</form>

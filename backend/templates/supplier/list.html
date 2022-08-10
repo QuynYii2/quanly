@@ -1,0 +1,144 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_search').val('');
+		$('#filter_service').val('');
+        $('#filter_published').val('');
+		$('#frm-admin').submit();
+	});
+});
+</script>
+{/literal}
+
+<form name="frmSupplier" id="frm-admin" action="" method="get" class="form-admin form-inline">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="supplier"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div class="form-group">
+            <label for="filter_search">{#TITLE_SEARCH#}:</label>
+            <input type="text" class="form-control" name="filter_search" id="filter_search" value="{$FormSearch.filter_search}" placeholder="{#KEYWORD#}">
+        </div>
+        <!--
+        <div class="form-group">
+            <select name="filter_location" id="filter_location" class="form-control">
+                <option value="" selected="selected">{#LOCATION#}</option>
+                {assign var="c_name" value=""}
+                {foreach key=key item=items from=$locations}
+
+                {if $c_name neq $items.c_name}
+                <optgroup label=" {$items.c_name}">
+                    {assign var="c_name" value=$items.c_name}
+                    {/if}
+
+                    <option value="{$items.id}" {if $FormSearch.filter_location eq $items.id}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+
+                    {if $c_name neq $items.c_name || ($key+1) eq count($locations)}
+                </optgroup>
+                {/if}
+
+                {/foreach}
+            </select>
+        </div>
+        -->
+        <div class="form-group">
+            <select name="filter_service" id="filter_service" class="form-control">
+                <option value="" selected="selected">{#PLEASE_SELECT#}</option>
+                {foreach key=value item=title from=$services}
+                <option value="{$value}" {if $value eq $FormSearch.filter_service}selected="selected"{/if}>{$title}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="filter_published" id="filter_published" class="form-control">
+                <option value="" selected="selected">{#PLEASE_SELECT#}</option>
+                <option value="0" {if $FormSearch.filter_published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                <option value="1" {if $FormSearch.filter_published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+            </select>
+        </div>
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <table class="table table-hover">
+	<thead>
+		{php}$FormSearch = $this->get_template_vars('FormSearch');{/php}
+		<tr>
+			<th width="5">#</th>
+			<th width="20">
+				<input type="checkbox" name="toggle" value="0" class="check-all" />
+			</th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.code', 'CODE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+			<th class="title" nowrap="nowrap">
+				{php}echo Generals::getBuildOrder('fl.name', 'TITLE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+			</th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.website', 'WEBSITE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.address', 'ADDRESS', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.phone', 'PHONE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+			<th class="title" nowrap="nowrap">
+				{#INTROTEXT#}
+			</th>
+            <!--
+			<th class="title text-center" nowrap="nowrap">
+				{php}echo Generals::getBuildOrder('a.published', 'PUBLISHED', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+			</th>
+			<th width="8%" nowrap="nowrap">
+				{php}echo Generals::getBuildOrder('a.ordering', 'ORDERING', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+			</th>
+			-->
+			<th width="1%" nowrap="nowrap">
+				{php}echo Generals::getBuildOrder('a.id', 'FIELD_ID', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+			</th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="11">{$paging}</td>
+		</tr>
+	</tfoot>
+	<tbody>
+	{foreach key=key item=items from=$DataList}
+		<tr class="row{$key%2}">
+			<td align="center">{$key+1}</td>
+			<td align="center"><input type="checkbox" id="cid_{$items.id}" name="cid[]" value="{$items.id}" class="check-id"/></td>
+            <td><div class="height-one"><a href="index.php?option=supplier&view=form&cid[]={$items.id}">{$items.code}</a></div></td>
+			<td>
+                <div class="height-one">
+                    <a href="index.php?option=supplier&view=form&cid[]={$items.id}">{$items.name}</a>
+                    <p title="{$items.name}" class="smallsub">(<span>{#ALIAS#}</span>: {$items.alias})</p>
+                </div>
+			</td>
+            <td><div class="height-one">{$items.website}</div></td>
+            <td><div class="height-one">{$items.address}</div></td>
+            <td><div class="height-one" style="white-space: nowrap;">{$items.phone}</div></td>
+			<td><div class="height-one">{$items.introtext|strip_tags:false|truncate:125:"...":false}</div></td>
+            <!--
+			<td class="text-center">
+				{if $items.published eq 1}
+				<a href="javascript:void(0);" class="boolean" onclick="javascript: submitForm('unpublish', {$items.id});"><span class="publish glyphicon glyphicon-eye-open"></span></a>
+				{else}
+				<a href="javascript:void(0);" class="boolean" onclick="javascript: submitForm('publish', {$items.id});"><span class="unpublish glyphicon glyphicon-eye-close"></span></a>
+				{/if}
+			</td>
+			<td class="order">
+				<input type="text" class="text-center form-control" name="order[{$items.id}]" size="5" value="{$items.ordering}" />
+			</td>
+			-->
+			<td align="center">{$items.id}</td>
+		</tr>
+	{/foreach}
+	</tbody>
+	</table>
+</form>

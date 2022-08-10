@@ -1,0 +1,57 @@
+.titlepopup{}
+.tipsy-inner {
+	padding:10px 15px;
+	line-height:1.5em;
+	font-weight:bold;
+}
+.tipsy {
+	/* ------------------------------------
+	opacity:.8;
+	filter:alpha(opacity=80);
+	------------------------------------ */
+	background-repeat:no-repeat;
+	padding:5px;
+}
+.tipsy-inner {
+	padding:2px;
+	max-width:200px;
+	font:11px 'Lucida Grande', sans-serif;
+	-moz-border-radius:2px;
+	-khtml-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+	background-color:#333333;
+	color:#000000;
+	text-align:left;
+	border:#333333 1px solid;
+}
+.tipsy-north {
+	background-image:url(../images/tipsy-north.gif);
+	background-position:top center;
+}
+.tipsy-south {
+	background-image:url(../images/tipsy-south.gif);
+	background-position:bottom center;
+	padding-bottom:10px;
+}
+.tipsy-east {
+	background-image:url(../images/tipsy-east.gif);
+	background-position:right center;
+}
+.tipsy-west {
+	background-image:url(../images/tipsy-west.gif);
+	background-position:left center;
+}
+.imgtip{
+	border:0px;width:200px;
+}
+.tittip{
+	background:#D1DEF7;
+	color:#3F70AA;
+	font-weight:bold;
+	font-size:18px;
+	padding:5px;
+	border:#9FC0E2 1px solid;
+	border-bottom:0;
+	font-family:serif;
+}

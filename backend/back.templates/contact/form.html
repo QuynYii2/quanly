@@ -1,0 +1,105 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remattach').click(function(){
+		$(this).remove();
+		$('img#itemattach').remove();
+		$('input#remattach').val($(this).attr('attach'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmContact" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="contact"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenattach" value="{$ObjectData.attach}" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="title">{#CONTACT_TITLE#}:</label>
+				<input type="text" id="title" name="vform[title]" value="{$ObjectData.title}" class="required"/>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="name">{#CONTACT_NAME#}:</label>
+				<input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#CONTACT_EMAIL#}:</label>
+				<input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="required email"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="phone">{#CONTACT_PHONE#}:</label>
+				<input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="address">{#CONTACT_ADDRESS#}:</label>
+				<input type="text" id="address" name="vform[address]" value="{$ObjectData.address}"/>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+			<div class="block">
+			 	<label for="introtext">{#CONTACT_INTRO#}: </label>              
+				<textarea id="introtext" name="vform[introtext]" class="inputbox">{$ObjectData.introtext}</textarea>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label>{#CONTACT_ATTACH#}:</label>
+				<input type="file" class="inputbox" id="attach" name="attach" value="{$ObjectData.attach}" />
+				{if $ObjectData.attach}
+				<div class="overview">
+					<a attach="{$ObjectData.attach}" class="tooltip remattach" style="display:block;float:left;margin-top:3px;" href="javascript:;">{$ObjectData.attach}</a>
+					<div style="clear: both;"></div>
+				</div>
+				<a style="margin-left: 140px;" href="../data/images/contact/{$ObjectData.attach}">Download File</a>
+				<input type="hidden" id="remattach" name="vform[remattach]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+	</fieldset>
+</form>

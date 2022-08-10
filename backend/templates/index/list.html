@@ -1,0 +1,52 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+});
+</script>
+{/literal}
+
+<img src="Visit-Asia-Travel.jpg" border='0' width="100%"/>
+<!--
+<form action="" method="post" name="frmGlobal" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value="update"/>
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+		<br/>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>{#INDEX_TITLE#}</th>
+                <th>{#INDEX_VALUE#}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach key=key item=items from=$globals}
+            <tr>
+                <td>
+                    <input type="hidden" id="primary_{$items.id}" name="primary[{$items.id}]" value="{$items.id}"/>
+                    <input type="hidden" id="config_{$items.id}" name="config[{$items.id}]" value="{$items.config}"/>
+                    <input type="text" id="label_{$items.id}" name="label[{$items.id}]" value="{$items.label}" class="required input-lager" readonly="readonly" style="border: none;background: transparent !important;"/>
+                </td>
+                <td>
+                    <input type="text" id="value_{$items.id}" name="value[{$items.id}]" value="{$items.value}" class="required form-control"/>
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+
+        <!--
+        <div class="block fltlft">
+            <input type="text" id="ordering_{$items.id}" name="ordering[{$items.id}]" value="{$items.ordering}" class="validate-number input-small"/>
+        </div>
+        <div class="block fltlft">
+            <select id="published_{$items.id}" name="published[{$items.id}]" class="inputbox">
+                <option value="1" {if $items.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                <option value="0" {if $items.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+            </select>
+        </div>
+         --
+	</fieldset>
+</form>
+-->

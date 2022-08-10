@@ -1,0 +1,64 @@
+{literal}
+<script router="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmRouter" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="router"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="module">{#ROUTER_OPTION#}:</label>
+				<input type="text" id="module" name="vform[module]" value="{$ObjectData.module}" class="required"/>
+				<select id="genre" name="vform[genre]" class="inputbox">
+					<option value="0" {if $ObjectData.genre eq '0'}selected="selected"{/if}>{#ROUTER_GENRE_0#}</option>
+					<option value="1" {if $ObjectData.genre eq '1'}selected="selected"{/if}>{#ROUTER_GENRE_1#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="router">{#ROUTER_ROUTER#}: </label>              
+				<input type="text" id="router" name="vform[router]" value="{$ObjectData.router}" class="required"/>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+	</fieldset>
+</form>

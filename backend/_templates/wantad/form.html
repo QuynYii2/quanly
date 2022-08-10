@@ -1,0 +1,314 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#introlang").accordion();
+	$("#customlang").accordion();
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmProduct" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="wantad"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block readonly">
+						<label class="title">{#PRODUCT_NAME#}:</label>
+						<label class="value">{$ObjectLang[$items.code].name}</label>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block readonly">
+					 	<label class="title">{#PRODUCT_SHORT#}: </label>
+					 	<label class="value">{$ObjectLang[$items.code].shorttext}</label>              
+						<div class="clear"></div>
+					</div>
+					<div class="block readonly">
+						<label class="title">{#PRODUCT_META#}:</label>
+						<label class="value">{$ObjectLang[$items.code].meta}</label>
+						<div class="clr"></div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+
+			<div class="block readonly">
+			 	<label class="title">{#PRODUCT_CODE#}: </label>              
+				<label class="value">{$ObjectData.code}</label>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block readonly">
+			 	<label class="title">{#PRODUCT_GROUPPRO#}: </label>
+				<label class="value">
+					{foreach key = key item = items from = $Groupproes}
+					{if $items.id eq $ObjectData.grouppro}{$items.name}{/if}
+					{/foreach}
+				</label>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block readonly">
+				<label class="title">{#PRODUCT_IMAGE#}:</label>
+				{if $ObjectData.image}
+				<div class="value">
+					<img id="itemimage" src="{$smarty.const.IMG_URL}product/resize/{$ObjectData.thumb}" class="thumbnail"/>
+				</div>
+				{/if}
+				<div class="clear"></div>
+			</div>
+			 
+			<div class="block readonly">
+				<label class="title">{#PRODUCT_PRICE#}:</label>
+				<label class="value">
+					{$ObjectData.price}
+					{foreach key = key item=items from = $Currencies}
+					{if $items.value eq 144 || $items.value eq 147 || $items.value eq 131}
+						{if $ObjectData.currency eq $items.value}{$items.text}{/if}
+					{/if}
+					{/foreach}
+				</label>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block readonly">
+			 	<label class="title">{#PUBLISHED#}: </label>    
+				<label class="value">
+					{if $ObjectData.published eq 1}{#OPTION_PUBLISH#}{/if}
+					{if $ObjectData.published eq '0'}{#OPTION_UNPUBLISH#}{/if}
+				</label>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+	
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#PRODUCT_UPLOAD#}</legend>
+			<br/>
+			<div>
+				<div id="multi_images" style="padding-left:10px;display: table;">
+				{foreach key=key item=icons from=$images}
+				<img src=../data/images/product/multiple/{$icons.icon} title="{$icons.name}" alt="{$icons.name}" style="width:190px;height:120px;border:#DDDDDD 1px solid;padding:1px;"/>
+				{/foreach}
+				</div>
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#PRODUCT_CUSTOM#}</legend>
+			<br/>
+
+			<div>
+				<div id="customlang">
+					{foreach key=key item=items from=$languages}
+					<h3>{$items.name}</h3>
+					<div class="custom-lang" language="{$items.code}">
+						{foreach key=div item=custom from=$ProCustom[$items.code]}
+						{if $div%8 eq 0}<div class="width-45 fltlft">{/if}
+							{if $custom.genre eq 'relative'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block readonly">
+									<label class="title">{$custom.name}: </label>
+									<label class="value">
+									{foreach item=attr from=$Attribute[$items.code][$custom.id]}
+										{if $custom.value eq $attr.code}{$attr.name}{/if}
+									{/foreach}
+									</label>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'selectbox'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block readonly">
+									<label class="title">{$custom.name}: </label>
+									<label class="value">
+									{foreach item=attr from=$Attribute[$items.code][$custom.id]}
+										{if $custom.value eq $attr.code}{$attr.name}{/if}
+									{/foreach}
+									</label>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'checkbox'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div><strong><label>{$custom.name}: </label></strong></div>
+								<div class="block">
+									{foreach item=attr from=$Attribute[$items.code][$custom.id]}
+									<input lang="{$items.code}" relid="{$custom.id}" forchild="{$custom.childs}" {if in_array($attr.code, $custom.value)}checked="checked"{/if} class="width-auto {$custom.validate|replace:',':' '}" style="margin:6px 0 0;" type="checkbox" id="custom_{$items.code}_{$custom.id}_{$attr.id}" name="vform[custom][{$items.code}][{$custom.id}][]" value="{$attr.code}"/>
+									<label class="width-auto text-left" style="margin:5px 20px 5px 5px;" for="custom_{$items.code}_{$custom.id}_{$attr.id}">{$attr.name}</label>
+									{/foreach}
+								</div>
+							</div>
+							{elseif $custom.genre eq 'colorimg'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div><strong><label>{$custom.name}: </label></strong></div>
+								<div class="block">
+									{foreach item=attr from=$Attribute[$items.code][$custom.id]}
+									<div class="colorimg">
+										<input {if in_array($attr.code, $custom.check)}checked="checked"{/if} class="width-auto {$custom.validate|replace:',':' '}" style="margin:6px 0 0;" type="checkbox" id="custom_{$items.code}_{$custom.id}_{$attr.id}_check" name="vform[custom][{$items.code}][{$custom.id}][check][{$attr.code}]" value="{$attr.code}"/>
+										<label class="width-auto text-left" style="margin:5px 20px 5px 5px;" for="custom_{$items.code}_{$custom.id}_{$attr.id}">{$attr.name}</label>
+										<input class="upload {$custom.validate|replace:',':' '}" style="margin:6px 0 0 0;" type="file" id="custom_{$items.code}_{$custom.id}_{$attr.id}_file" name="vform[custom][{$items.code}][{$custom.id}][file][{$attr.code}]" value="{$custom.file[$attr.code]}"/>
+										{if $custom.file[$attr.code] ne ''}
+										<a href="javascript:;" class="tooltip" title="<img src=../data/images/product/custom/{$ObjectData.id}/{$custom.file[$attr.code]} style='width:190px;height:120px;border:#DDDDDD 1px solid;padding:1px;'/>">file</a>
+										<input type="hidden" id="custom_{$items.code}_{$custom.id}_{$attr.id}_file" name="vform[custom][{$items.code}][{$custom.id}][file][{$attr.code}]" value="{$custom.file[$attr.code]}">
+										{/if}
+									</div>
+									{/foreach}
+								</div>
+							</div>
+							{elseif $custom.genre eq 'radiobox'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label>{$custom.name}: </label>
+									{foreach item=attr from=$Attribute[$items.code][$custom.id]}
+									<input lang="{$items.code}" relid="{$custom.id}" forchild="{$custom.childs}" {if $custom.value eq $attr.code}checked="checked"{/if} class="width-auto {$custom.validate|replace:',':' '}" style="margin:6px 0 0 20px;" type="radio" id="custom_{$items.code}_{$custom.id}_{$attr.id}" name="vform[custom][{$items.code}][{$custom.id}]" value="{$attr.code}"/>
+									<label class="width-auto text-left" style="margin:5px 20px 5px 5px;" for="custom_{$items.code}_{$custom.id}_{$attr.id}">{$attr.name}</label>
+									{/foreach}
+								</div>
+							</div>
+							{elseif $custom.genre eq 'textbox'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block readonly">
+									<label class="title">{$custom.name}: </label>
+									<label class="value">{$custom.value}</label>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'link'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<input type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}][link]" value="{$custom.link}" class="{$custom.validate|replace:',':' '}"/>
+									<select id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}][open]" style="max-width:100px;">
+										<option value="_blank" {if $custom.open eq '_blank'}selected="selected"{/if}>Opens the linked document in a new window or tab</option>
+										<option value="_self" {if $custom.open eq '_self'}selected="selected"{/if}>Opens the linked document in the same frame as it was clicked (this is default)</option>
+										<option value="_parent" {if $custom.open eq '_parent'}selected="selected"{/if}>Opens the linked document in the parent frame</option>
+										<option value="_top" {if $custom.open eq '_top'}selected="selected"{/if}>Opens the linked document in the full body of the window</option>
+									</select>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'areabox'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<textarea type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}]" class="{$custom.validate|replace:',':' '}">{$custom.value}</textarea>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'between'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<input type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}][from]" value="{$custom.from}" class="{$custom.validate|replace:',':' '}"/>
+									<input type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}][to]" value="{$custom.to}" class="{$custom.validate|replace:',':' '}"/>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'datetime'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<input class="date-time {$custom.validate|replace:',':' '}" type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}]" value="{$custom.value}"/>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'editor'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<textarea type="text" id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}]" class="{$custom.validate|replace:',':' '}">{$custom.value}</textarea>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'country'}
+							<div class="custom-item custom-country" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<select id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}]" class="{$custom.validate|replace:',':' '}">
+									{foreach item=country from=$countries}
+										<option value="{$country.id}" {if $custom.value eq $country.id}selected="selected"{/if}>{$country.name}</option>
+									{/foreach}
+									</select>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'city'}
+							<div class="custom-item coustom-city" forval="{$custom.id}">
+								<div class="block readonly">
+									<label class="title">{$custom.name}: </label>
+									<label class="value">
+									{foreach item=city from=$cities}
+										{if $custom.value eq $city.id}{$city.name}{/if}
+									{/foreach}
+									</label>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'state'}
+							<div class="custom-item coustom-state" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+									<select id="custom_{$items.code}_{$custom.id}" name="vform[custom][{$items.code}][{$custom.id}]" class="{$custom.validate|replace:',':' '}">
+									{foreach item=state from=$states}
+										<option value="{$state.id}" {if $custom.value eq $state.id}selected="selected"{/if}>{$state.name}</option>
+									{/foreach}
+									</select>
+								</div>
+							</div>
+							{elseif $custom.genre eq 'separator'}
+							<div class="custom-item" forval="{$custom.id}">
+								<div class="block">
+									<label class="title">{$custom.name}: </label>
+								</div>
+							</div>
+							{/if}
+						{if ($div+1)%8 eq 0}</div>{/if}
+						{/foreach}
+						{if ($div+1)%8 neq 0}</div>{/if}
+					</div>
+					{/foreach}
+				</div>
+			</div>
+			<div class="clr"></div>
+		</fieldset>
+	</div>
+	<br/>
+
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#PRODUCT_INTRO#}</legend>
+			<br/>
+			<div id="introlang">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<!-- <strong>{#PRODUCT_OVERVIEW#}</strong> -->
+					<div>{$ObjectLang[$items.code].introtext}</div>
+					<!-- 
+					<br/>
+					<strong>{#PRODUCT_TECHNOLOGY#}</strong>
+					<div>{$Technology[$items.code]}</div>
+					<br/>
+					<strong>{#PRODUCT_VIDEO#}</strong>
+					<div>{$Video[$items.code]}</div>
+					<br/>
+					<strong>{#PRODUCT_SIZING#}</strong>
+					<div>{$Sizing[$items.code]}</div>
+					 -->
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+</form>

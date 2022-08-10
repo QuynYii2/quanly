@@ -1,0 +1,119 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	
+	$("#delivery").datepicker({
+		changeMonth: true,
+		changeYear: true,
+		dateFormat: 'dd-mm-yy',
+		yearRange: 'c-0:c+1'
+	});
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remattach').click(function(){
+		$(this).remove();
+		$('img#itemattach').remove();
+		$('input#remattach').val($(this).attr('attach'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmOrder" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="order"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="name">{#ORDER_NAME#}:</label>
+				<input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#ORDER_EMAIL#}:</label>
+				<input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="required email"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="phone">{#ORDER_PHONE#}:</label>
+				<input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="address">{#ORDER_ADDRESS#}:</label>
+				<input type="text" id="address" name="vform[address]" value="{$ObjectData.address}"/>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+			<div class="block">
+			 	<label for="introtext">{#ORDER_INTRO#}: </label>              
+				<textarea id="introtext" name="vform[introtext]" class="inputbox">{$ObjectData.introtext}</textarea>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="delivery">{#ORDER_DELIVERY#}:</label>
+				<input type="text" id="delivery" name="vform[delivery]" value="{$ObjectData.delivery|date_format:'%d-%m-%Y'}"/>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+		<br/>
+		<div class="width-100">
+			<table class="adminlist">
+			<thead>
+				<tr>
+					<th width="5">#</th>
+					<th class="title" nowrap="nowrap">
+						{#ORDER_ITEM_CODE#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#ORDER_ITEM_NAME#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#ORDER_ITEM_AMOUNT#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#ORDER_ITEM_PRICE#}
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			{foreach key=key item=items from=$ObjectItem}
+				<tr class="row{$key%2}">
+					<td align="center">{$key+1}</td>
+					<td>{$items.code}</td>
+					<td>{$items.name}</td>
+					<td align="center">{$items.amount}</td>
+					<td align="right">{$items.price} {$items.currency}</td>
+				</tr>
+			{/foreach}
+			</tbody>
+			</table>
+			<p style="font-size: 150%;text-align: right;"><strong>{#ORDER_TOTAL#}: {$ObjectData.total} {$ObjectData.currency}</strong></p>
+		</div>
+	</fieldset>
+</form>

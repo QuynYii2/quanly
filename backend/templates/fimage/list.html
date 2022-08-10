@@ -1,0 +1,318 @@
+<link type="text/css" href="styles/tipsy.css" rel="stylesheet">
+<link type="text/css" href="styles/upload.css" rel="stylesheet">
+<script src="javascripts/jquery.tipsy.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.queue.js" type="text/javascript" ></script>
+<script src="javascripts/upload/fileprogress.js" type="text/javascript" ></script>
+<script src="javascripts/upload/handlers.js" type="text/javascript" ></script>
+{literal}
+<script fimage="javascript" type="text/javascript">
+var siteurl = '{/literal}{php}echo DOMAIN;{/php}{literal}';
+jQuery(document).ready(function($) {
+	getImages($('.tree-folder >ul >li:first-child >a'));
+	
+	$('button#create').click(function(){
+		if ($.trim($('input#folder').val()) != '') {
+			$.ajax({
+				url: 		'index.php?option=fimage&view=list&task=createFolder',
+				type: 		'POST', dataType: 	'html',
+				data: 		{ folder: $('input#folder').val() },
+				success: 	function (result) {
+					window.location = '{/literal}{$currentlink}{literal}';
+				}
+			});
+		}
+	});
+	
+	$('label.remfolder').click(function(){
+		if (! confirm('You want delete it')) return false;
+		$.ajax({
+			url: 		'index.php?option=fimage&view=list&task=removeFolder',
+			type: 		'POST', dataType: 	'html',
+			data: 		{ path: $(this).attr('path') },
+			success: 	function (result) {
+				window.location = '{/literal}{$currentlink}{literal}';
+			}
+		});
+	});
+	
+	$('.tree-folder a').click(function(){
+		getImages($(this));
+	});
+	
+	function getImages(obj) {
+		$('.tree-folder a').removeClass('active');
+		obj.addClass('active')
+		var path = obj.attr('path');
+		$('#load-ajax').show();
+		$.ajax({
+			url: 		'index.php?option=fimage&view=list&task=getImages',
+			type: 		'POST', dataType: 	'json',
+			data: 		{ path: path },
+			success: 	function (data) {
+				var result = data.file;
+				
+				$('#source-path').html(data.path);				
+				$('.image-list').html('');
+				for (var i=0; i<result.length; i++) {
+					if (result[i].type == 1) {
+						var html = '<div style="width: 17%;height: 100px;" class="is_img_'+result[i].type+'" data="file'+i+'"><img src="'+result[i].path+'" alt="'+result[i].name+'"/><a title="Remove File" data="file'+i+'" file="'+result[i].file+'" class="remimage"></a></div>';
+					} else {
+						var html = '<div style="width: 17%;" class="is_img_'+result[i].type+'" data="file'+i+'"><a target="_blank" href="'+result[i].path+'">'+result[i].name+'</a><a title="Remove File" data="file'+i+'" file="'+result[i].file+'" class="remimage"></a></div>';
+					}
+					$('.image-list').append(html);
+				}
+				$('#load-ajax').hide();
+				
+				$('.image-list a.remimage').unbind('click').click(function(){
+					if (! confirm('You want delete it')) return false;
+					var data = $(this).attr('data');
+					var file = $(this).attr('file');
+					$.ajax({
+						url: 		'index.php?option=fimage&view=list&task=delImage',
+						type: 		'POST', dataType: 	'html',
+						data: 		{ file: file },
+						success: 	function (result) {
+							$('div[data="'+data+'"]').remove();
+						}
+					});
+				});
+			}
+		});
+	}
+	
+	uploadfile = new SWFUpload({
+		upload_url: "pages/fimage/upload.php",
+		post_params: {"PHPSESSID": "{/literal}{php} echo session_id(); {/php}{literal}"},
+		file_size_limit : "204800",
+		file_types : "*.*",
+		file_types_description : "All Files",
+		file_upload_limit : "300",
+		file_queue_limit : "200",
+		file_dialog_start_handler : fileDialogStart,
+		file_queued_handler : fileQueued,
+		file_queue_error_handler : fileQueueError,
+		upload_start_handler : uploadStart,
+		upload_progress_handler : uploadProgress,
+		upload_error_handler : uploadError,
+		upload_success_handler : uploadSuccess,
+		upload_complete_handler : function(file){
+			var image	= new Array('.jpg', '.png', '.bmp', '.jpeg', '.tiff', '.gif');
+			var start 	= $('.image-list >div').length;
+			var source	= $('#source-path').html();
+			var type	= file.type;
+			var type	= in_array(type.toLowerCase(), image) ? '1' : '0';
+			var html 	= '<div class="is_img_'+type+'" data="file'+start+'"><img src="'+source+'/'+file.name+'" alt="'+file.name+'"/><a title="Remove File" data="file'+start+'" file="'+base64_encode(file.name)+'" class="remimage"></a></div>';
+			$('.image-list').append(html);
+			
+			$('.image-list a').unbind('click').click(function(){
+				var data = $(this).attr('data');
+				$.ajax({
+					url: 		'index.php?option=fimage&view=list&task=delImage',
+					type: 		'POST', dataType: 	'html',
+					data: 		{ file: $(this).attr('file') },
+					success: 	function (result) {
+						$('div[data="'+data+'"]').remove();
+					}
+				});
+			});
+		},
+		button_image_url : "images/upload/XPButtonUploadText_61x22.png",
+		button_placeholder_id : "spanButtonPlaceholder",
+		button_window_mode: "transparent",
+		button_width: 61,
+		button_height: 22,
+		flash_url : "javascripts/upload/swfupload.swf",
+		custom_settings : {
+			progressTarget : "fsUploadProgress",
+			cancelButtonId : "btnCancel"
+		},
+		debug: false
+	});
+	$("#btnUpload").click(function(){
+		uploadfile.startUpload();
+	});
+});
+
+function base64_encode(data) {
+	  //  discuss at: http://phpjs.org/functions/base64_encode/
+	  // original by: Tyler Akins (http://rumkin.com)
+	  // improved by: Bayron Guevara
+	  // improved by: Thunder.m
+	  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  // improved by: Rafał Kukawski (http://kukawski.pl)
+	  // bugfixed by: Pellentesque Malesuada
+	  //   example 1: base64_encode('Kevin van Zonneveld');
+	  //   returns 1: 'S2V2aW4gdmFuIFpvbm5ldmVsZA=='
+	  //   example 2: base64_encode('a');
+	  //   returns 2: 'YQ=='
+
+	  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	  var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+	    ac = 0,
+	    enc = '',
+	    tmp_arr = [];
+
+	  if (!data) {
+	    return data;
+	  }
+
+	  do { // pack three octets into four hexets
+	    o1 = data.charCodeAt(i++);
+	    o2 = data.charCodeAt(i++);
+	    o3 = data.charCodeAt(i++);
+
+	    bits = o1 << 16 | o2 << 8 | o3;
+
+	    h1 = bits >> 18 & 0x3f;
+	    h2 = bits >> 12 & 0x3f;
+	    h3 = bits >> 6 & 0x3f;
+	    h4 = bits & 0x3f;
+
+	    // use hexets to index into b64, and append result to encoded string
+	    tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
+	  } while (i < data.length);
+
+	  enc = tmp_arr.join('');
+
+	  var r = data.length % 3;
+
+	  return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
+	}
+function base64_decode(data) {
+	  //  discuss at: http://phpjs.org/functions/base64_decode/
+	  // original by: Tyler Akins (http://rumkin.com)
+	  // improved by: Thunder.m
+	  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  //    input by: Aman Gupta
+	  //    input by: Brett Zamir (http://brett-zamir.me)
+	  // bugfixed by: Onno Marsman
+	  // bugfixed by: Pellentesque Malesuada
+	  // bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  //   example 1: base64_decode('S2V2aW4gdmFuIFpvbm5ldmVsZA==');
+	  //   returns 1: 'Kevin van Zonneveld'
+	  //   example 2: base64_decode('YQ===');
+	  //   returns 2: 'a'
+
+	  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	  var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+	    ac = 0,
+	    dec = '',
+	    tmp_arr = [];
+
+	  if (!data) {
+	    return data;
+	  }
+
+	  data += '';
+
+	  do { // unpack four hexets into three octets using index points in b64
+	    h1 = b64.indexOf(data.charAt(i++));
+	    h2 = b64.indexOf(data.charAt(i++));
+	    h3 = b64.indexOf(data.charAt(i++));
+	    h4 = b64.indexOf(data.charAt(i++));
+
+	    bits = h1 << 18 | h2 << 12 | h3 << 6 | h4;
+
+	    o1 = bits >> 16 & 0xff;
+	    o2 = bits >> 8 & 0xff;
+	    o3 = bits & 0xff;
+
+	    if (h3 == 64) {
+	      tmp_arr[ac++] = String.fromCharCode(o1);
+	    } else if (h4 == 64) {
+	      tmp_arr[ac++] = String.fromCharCode(o1, o2);
+	    } else {
+	      tmp_arr[ac++] = String.fromCharCode(o1, o2, o3);
+	    }
+	  } while (i < data.length);
+
+	  dec = tmp_arr.join('');
+
+	  return dec.replace(/\0+$/, '');
+	}
+function in_array(needle, haystack, argStrict) {
+	  //  discuss at: http://phpjs.org/functions/in_array/
+	  // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  // improved by: vlado houba
+	  // improved by: Jonas Sciangula Street (Joni2Back)
+	  //    input by: Billy
+	  // bugfixed by: Brett Zamir (http://brett-zamir.me)
+	  //   example 1: in_array('van', ['Kevin', 'van', 'Zonneveld']);
+	  //   returns 1: true
+	  //   example 2: in_array('vlado', {0: 'Kevin', vlado: 'van', 1: 'Zonneveld'});
+	  //   returns 2: false
+	  //   example 3: in_array(1, ['1', '2', '3']);
+	  //   example 3: in_array(1, ['1', '2', '3'], false);
+	  //   returns 3: true
+	  //   returns 3: true
+	  //   example 4: in_array(1, ['1', '2', '3'], true);
+	  //   returns 4: false
+
+	  var key = '',
+	    strict = !! argStrict;
+
+	  //we prevent the double check (strict && arr[key] === ndl) || (!strict && arr[key] == ndl)
+	  //in just one for, in order to improve the performance 
+	  //deciding wich type of comparation will do before walk array
+	  if (strict) {
+	    for (key in haystack) {
+	      if (haystack[key] === needle) {
+	        return true;
+	      }
+	    }
+	  } else {
+	    for (key in haystack) {
+	      if (haystack[key] == needle) {
+	        return true;
+	      }
+	    }
+	  }
+
+	  return false;
+	}
+</script>
+{/literal}
+
+<div style="display: none;" id="source-path"></div>
+
+<div>
+	<div style="position:relative;">
+		<span class="legend" style="">Upload File</span>
+		<div class="fieldset flash" id="fsUploadProgress" style="overflow:auto;height:32px;width:95%;margin-left: 0"></div>
+	</div>
+	<div>
+		<table width="auto" style="width: auto;">
+		<tr>
+			<td><span id="spanButtonPlaceholder"></span></td>
+			<td><input id="btnUpload" type="button" value="Start Upload" class="cmd-70x22" style="font-weight:normal;"/></td>
+			<td><input id="btnCancel" type="button" value="Cancel Uploads" onclick="cancelQueue(upload);" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" /></td>
+		</tr>
+		</table>
+	</div>
+</div>
+<br/>
+<form name="frmFimage" id="frm-admin" action="" method="post" class="form-admin">
+	<table class="adminlist">
+	<thead>
+		<tr>
+			<th width="25%">{#FIMAGE_FOLDER#}</th>
+			<th nowrap="nowrap">{#FIMAGE_FILE#}</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td valign="top">
+				<div class="tree-folder">{$treefolder}</div>
+				<input type="text" id="folder" name="folder" class=""/>
+				<button id="create" name="create" type="button">Create Folder</button>
+			</td>
+			<td valign="top">
+				<div class="image-list"></div>
+			</td>
+		</tr>
+	</tbody>
+	</table>
+</form>

@@ -1,0 +1,236 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_search').val('');
+		$('#filter_published').val('');
+		$('#frm-admin').submit();
+	});
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+});
+</script>
+{/literal}
+
+<form name="frmExtQuotation" id="frm-admin" action="" method="post" class="form-admin form-inline">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="booking"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div><label for="filter_search">{#TITLE_SEARCH#}:</label></div>
+        <div class="row" style="margin-bottom: 5px;">
+            <div class="col-sm-6">
+                <div class="form-group" style="width: 100%;">
+                    <select name="filter_agency" id="filter_agency" class="form-control" style="width: 100%;">
+                        <option value="" selected="selected">{#AGENCIES#}[i]{#ADDRESS#}[/i]</option>
+                        {assign var="l_name" value=""}
+                        {foreach key=key item=items from=$agencies}
+
+                        {if $l_name neq $items.l_name}
+                        <optgroup label="{$items.l_name}">
+                            {assign var="l_name" value=$items.l_name}
+                            {/if}
+
+                            <option value="{$items.id}" {if $FormSearch.filter_agency eq $items.id}selected="selected"{/if}>{$items.code} - {$items.name}[i]{$items.address}[/i]</option>
+
+                            {if $l_name neq $items.l_name || ($key+1) eq count($agencies)}
+                        </optgroup>
+                        {/if}
+
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group" style="width: 100%;">
+                    <select name="filter_supplier" id="filter_supplier" class="form-control" style="width: 100%;">
+                        <option value="" selected="selected">{#SUPPLIER#} [i]{#PHONE#}[/i]</option>
+                        {assign var="l_name" value=""}
+                        {foreach key=key item=items from=$suppliers}
+
+                        {if $l_name neq $items.l_name}
+                        <optgroup label="{$items.l_name}">
+                            {assign var="l_name" value=$items.l_name}
+                            {/if}
+
+                            <option value="{$items.id}" {if $FormSearch.filter_agency eq $items.id}selected="selected"{/if}>{$items.code} - {$items.name}[i]{$items.phone}[/i]</option>
+
+                            {if $l_name neq $items.l_name || ($key+1) eq count($suppliers)}
+                        </optgroup>
+                        {/if}
+
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="filter_search" id="filter_search" value="{$FormSearch.filter_search}" placeholder="{#KEYWORD#}">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_departure" id="filter_departure" value="{$FormSearch.filter_departure}" placeholder="{#DEPARTURE#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <select name="filter_location" id="filter_location" class="form-control" style="min-width: 300px;">
+                <option value="" selected="selected">{#LOCATION#}</option>
+                {assign var="c_name" value=""}
+                {foreach key=key item=items from=$locations}
+
+                {if $c_name neq $items.c_name}
+                <optgroup label=" {$items.c_name}">
+                    {assign var="c_name" value=$items.c_name}
+                    {/if}
+
+                    <option value="{$items.id}" {if $FormSearch.filter_location eq $items.id}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+
+                    {if $c_name neq $items.c_name || ($key+1) eq count($locations)}
+                </optgroup>
+                {/if}
+
+                {/foreach}
+            </select>
+        </div>
+        <!--
+        <div class="form-group">
+            <select name="filter_published" id="filter_published" class="form-control">
+                <option value="" selected="selected">{#PLEASE_SELECT#}</option>
+                <option value="0" {if $FormSearch.filter_published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                <option value="1" {if $FormSearch.filter_published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+            </select>
+        </div>
+        -->
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+        {php}$FormSearch = $this->get_template_vars('FormSearch');{/php}
+        <tr>
+            <th width="5">#</th>
+            <th width="20">
+                <input type="checkbox" name="toggle" value="0" class="check-all" />
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.code', 'CODE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('fl.name', 'TITLE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.numday', 'NUMDAY', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.departure', 'DEPARTURE', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.journeis', 'JOURNEY', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.paxgroup', 'PAXGROUP', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#AGENCIES#}
+            </th>
+            <th class="title text-center" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.status', 'STATUS', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title text-center" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.money', 'MONEY', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th class="title text-center" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.published', 'PUBLISHED', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th width="8%" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.ordering', 'ORDERING', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+            <th width="1%" nowrap="nowrap">
+                {php}echo Generals::getBuildOrder('a.id', 'FIELD_ID', $FormSearch['orderby_field'], $FormSearch['orderby_order']){/php}
+            </th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+            <td colspan="15">{$paging}</td>
+        </tr>
+        </tfoot>
+        <tbody>
+        {foreach key=key item=items from=$DataList}
+        <tr class="row{$key%2}">
+            <td align="center">{$key+1}</td>
+            <td align="center"><input type="checkbox" id="cid_{$items.id}" name="cid[]" value="{$items.id}" class="check-id"/></td>
+            <td>
+                <a href="index.php?option=booking&view=detail&cid[]={$items.id}"><span class="glyphicon glyphicon-eye-open"></span> {$items.code}</a>
+            </td>
+            <td>
+                <a href="index.php?option=booking&view=detail&cid[]={$items.id}"><span class="glyphicon glyphicon-eye-open"></span> {$items.name}</a>
+                <p title="{$items.name}" class="smallsub">(<span>{#ALIAS#}</span>: {$items.alias})</p>
+            </td>
+            <td>{$items.numday}</td>
+            <td>{$items.departure|date_format:'%d-%m-%Y %H:%M:%S'}</td>
+            <td>{$items.journeis}</td>
+            <td>{$items.paxrange}</td>
+            <td>{$items.agencies_name}</td>
+            <td class="text-center">
+                <div class="dropdown">
+                    <button class="btn {if $items.status lt 1}btn-warning{elseif $items.status eq 1}btn-success{elseif $items.status eq 2}btn-primary{/if} dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {if $items.status lt 1}{#STATUS_0#}{/if}
+                        {if $items.status eq 1}{#STATUS_1#}{/if}
+                        {if $items.status eq 2}{#STATUS_2#}{/if}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li {if $items.status lt 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('prepare', {$items.id});">{#STATUS_0#}</a></li>
+                        <li {if $items.status eq 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('starting', {$items.id});">{#STATUS_1#}</a></li>
+                        <li {if $items.status eq 2}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('fnished', {$items.id});">{#STATUS_2#}</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td class="text-center">
+                <div class="dropdown">
+                    <button class="btn {if $items.money lt 1}btn-danger{elseif $items.money eq 1}btn-success{/if} dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {if $items.money lt 1}{#MONEY_0#}{/if}
+                        {if $items.money eq 1}{#MONEY_1#}{/if}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li {if $items.money lt 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('unmoney', {$items.id});">{#MONEY_0#}</a></li>
+                        <li {if $items.money eq 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('ismoney', {$items.id});">{#MONEY_1#}</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td class="text-center">
+                <div class="dropdown">
+                    <button class="btn {if $items.published lt 1}btn-warning{elseif $items.published eq 1}btn-success{elseif $items.published eq 2}btn-danger{elseif $items.published eq 3}btn-primary{/if} dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {if $items.published lt 1}{#OPTION_0#}{/if}
+                        {if $items.published eq 1}{#OPTION_1#}{/if}
+                        {if $items.published eq 2}{#OPTION_2#}{/if}
+                        {if $items.published eq 3}{#OPTION_3#}{/if}
+                        {if $items.published eq 4}{#OPTION_4#}{/if}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li {if $items.published lt 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('setPending', {$items.id});">{#OPTION_0#}</a></li>
+                        <li {if $items.published eq 1}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('setReservation', {$items.id});">{#OPTION_1#}</a></li>
+                        <li {if $items.published eq 2}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('setOperation', {$items.id});">{#OPTION_2#}</a></li>
+                        <li {if $items.published eq 3}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('setBooking', {$items.id});">{#OPTION_3#}</a></li>
+                        <!--
+                        <li {if $items.published eq 4}class="disabled"{/if}><a href="javascript:;" onclick="javascript: submitForm('setCancel', {$items.id});">{#OPTION_4#}</a></li>
+                        -->
+                    </ul>
+                </div>
+            </td>
+            <td class="order">
+                <input type="text" class="text-center form-control" name="order[{$items.id}]" size="5" value="{$items.ordering}" />
+            </td>
+            <td align="center">{$items.id}</td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</form>

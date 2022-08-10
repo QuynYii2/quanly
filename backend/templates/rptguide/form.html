@@ -1,0 +1,321 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+
+    $('select#quotation').change(function(){
+        if ($(this).val()) {
+            $('#paxno').val($('option:selected', this).attr('item'));
+            $.ajax({
+                type: "POST",
+                url: 'index.php?option=rptguide&view=callajax&task=getQuotation&ajax=1',
+                data: { qid: $(this).val() },
+                dataType: 'json',
+                success: function(result){
+                    $('#advance-list tbody').empty();
+                    $('#paxno').val(result[0].paxrange);
+                    $('#agency').val(result[0].agent_name);
+                    $('#pnrno').val(result[0].code);
+                    $('#plate').val(result[0].journeis);
+                    $('#fperiod').val(result[0].s_date);
+                    $('#tperiod').val(result[0].e_date);
+
+                    for (var i=0; i<result.length; i++){
+                        var html = '';
+
+                        html+= '<tr day="'+i+'" row="0">';
+                        html+= '    <td class="text-left numday" rowspan="1">'+result[i].n_date+'<input type="hidden" name="vform[introtext][numday]['+i+']" value="'+result[i].n_date+'"/></td>';
+                        html+= '    <td class="text-left intro" colspan="5">'+result[i].f_name+' - '+result[i].t_name+'<input type="hidden" name="vform[introtext][plates]['+i+']" value="'+result[i].f_name+' - '+result[i].t_name+'"/></td>';
+                        html+= '    <td class="text-right"><button class="btn btn-success add-row" type="button"><i class="glyphicon glyphicon-plus"></i></button></td>';
+                        html+= '</tr>';
+
+                        $('#advance-list tbody').append(html);
+                        addRows();
+                    }
+                }
+            });
+        }
+    });
+
+    function samRows(){
+        $('#advance-list .sam-row').unbind('click').on('click', function(){
+            var parent  = $(this).parent().parent()
+            $('tr[day="'+parent.attr('day')+'"]:first').find('.add-row').click();
+        });
+    }
+    function addRows(){
+        $('#advance-list .add-row').unbind('click').on('click', function(){
+            var parent  = $(this).parent().parent();
+            var dayno   = parent.attr('day');
+            var count   = $('tr[day="'+parent.attr('day')+'"]').length;
+            var after   = $('tr[day="'+parent.attr('day')+'"]:last');
+
+            var html = '';
+            html+= '<tr day="'+parent.attr('day')+'" row="'+count+'">';
+            html+= '    <td class="text-left intro"><input placeholder="Guide fee" type="text" name="vform[introtext][intro]['+dayno+'][]"></td>';
+            html+= '    <td class="text-center paxno"><input placeholder="1" type="text" name="vform[introtext][paxno]['+dayno+'][]"></td>';
+            html+= '    <td class="text-center cash"><input placeholder="1.000" type="text" name="vform[introtext][cash]['+dayno+'][]"></td>';
+            html+= '    <td class="text-center actual"><input placeholder="1.000" type="text" name="vform[introtext][actual]['+dayno+'][]"></td>';
+            html+= '    <td class="text-left entrance">';
+            html+= '        <div class="list-item">';
+            html+= '            <div><a class="glyphicon glyphicon-remove-sign text-danger del-ent" style="font-size: 14px;"></a> <input placeholder="W.Xiengthong" type="text" name="vform[introtext][entrance]['+dayno+'][][]"></div>';
+            html+= '        </div>';
+            html+= '        <a class="glyphicon glyphicon-plus-sign text-success add-ent" style="font-size: 14px;"></a>';
+            html+= '    </td>';
+            html+= '    <td class="text-right"><button class="btn btn-danger del-row" type="button"><i class="glyphicon glyphicon-remove"></i></button> <button class="btn btn-success sam-row" type="button"><i class="glyphicon glyphicon-plus"></i></button></td>';
+            html+= '</tr>';
+
+            after.after(html);
+            parent.find('.numday').attr('rowspan', count+1);
+            addEnts();
+            delRows();
+            samRows();
+        });
+    }
+
+    function addEnts(){
+        delEnts();
+        $('#advance-list .add-ent').unbind('click').on('click', function(){
+            var parent  = $(this).parent().parent();
+            var dayno   = parent.attr('day');
+            var html = '<div><a class="glyphicon glyphicon-remove-sign text-danger del-ent" style="font-size: 14px;"></a> <input placeholder="W.Xiengthong" type="text" name="vform[introtext][entrance]['+dayno+'][][]"></div>';
+            parent.find('.list-item').append(html);
+            delEnts();
+        });
+    }
+
+    function delEnts(){
+        $('#advance-list .del-ent').unbind('click').on('click', function(){
+            $(this).parent().remove();
+        });
+    }
+
+    function delRows(){
+        $('#advance-list .del-row').unbind('click').on('click', function(){
+            $(this).parent().parent().remove();
+            var parent  = $(this).parent().parent();
+            var count   = $('tr[day="'+parent.attr('day')+'"]').length;
+            $('tr[day="'+parent.attr('day')+'"]:first').find('.numday').attr('rowspan', count);
+            $('tr[day="'+parent.attr('day')+'"]').each(function(key){
+                $(this).attr('row', key);
+            });
+        });
+    }
+
+    addRows();
+    delRows();
+    samRows();
+    addEnts();
+    delEnts();
+    delRess();
+
+    $('.add-res').click(function(){
+        var parent = $(this).parent().parent();
+        var html = '';
+        html+= '<div>';
+        html+= '    <a class="glyphicon glyphicon-remove-sign text-danger del-res" style="font-size: 14px;"></a>';
+        html+= '    <input placeholder="W.Visoun" type="text" name="vform[introtext][restaurant][]">';
+        html+= '    <input placeholder="1.000" type="text" name="vform[introtext][res_price][]" style="width: 60px;">';
+        html+= '</div>';
+        parent.find('.list-item').append(html);
+        delRess();
+    });
+
+    function delRess(){
+        $('#advance-list .del-res').unbind('click').on('click', function(){
+            $(this).parent().remove();
+        });
+    }
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmRptGuide" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+    <input type="hidden" id="genre" name="vform[genre]" value="1" />
+    <input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="rptguide"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+    <input type="hidden" name="vform[create_on]" value="{$ObjectData.create_on}">
+    <input type="hidden" name="vform[create_by]" value="{$ObjectData.create_by}">
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="quotation">{#RPT_QUOTATION#}: </label>
+                    <select id="quotation" name="vform[quotation]" class="form-control">
+                        <option value="">{#RPT_QUOTATION_SELECT#}</option>
+                        {foreach item=items from=$Quotations}
+                        <option item="{$items.paxrange}" value="{$items.id}" {if $items.id eq $ObjectData.quotation}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label for="paxno">{#RPT_PAXNO#}:</label>
+                    <input type="text" id="paxno" name="vform[paxno]" value="{$ObjectData.paxno}" class="form-control required number"/>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label for="published">{#PUBLISHED#}: </label>
+                    <select id="published" name="vform[published]" class="form-control">
+                        <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                        <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="agency">{#RPT_AGENCY#}:</label>
+                            <input type="text" id="agency" name="vform[agency]" value="{$ObjectData.agency}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="pnrno">{#RPT_PNRNO#}:</label>
+                            <input type="text" id="pnrno" name="vform[pnrno]" value="{$ObjectData.pnrno}" class="form-control required"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fperiod">{#RPT_PERIOD#}:</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="text" id="fperiod" name="vform[fperiod]" value="{$ObjectData.fperiod|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" id="tperiod" name="vform[tperiod]" value="{$ObjectData.tperiod|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="guide">{#RPT_GUIDE#}:</label>
+                            <input type="text" id="guide" name="vform[guide]" value="{$ObjectData.guide}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="owner">{#RPT_OWNER#}:</label>
+                            <input type="text" id="owner" name="vform[owner]" value="{$ObjectData.owner}" class="form-control required"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="plate">{#RPT_PLATE#}:</label>
+                    <input type="text" id="plate" name="vform[plate]" value="{$ObjectData.plate}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="telex">{#RPT_TELEX#}:</label>
+                    <input type="text" id="telex" name="vform[telex]" value="{$ObjectData.telex}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="phone">{#RPT_PHONE#}:</label>
+                    <input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}" class="form-control required"/>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <table id="advance-list" class="table table-striped">
+            <thead>
+            <tr>
+                <th class="text-left">{#RPT_ITEM_DATE#}</th>
+                <th class="text-left">{#RPT_ITEM_DESC#}</th>
+                <th class="text-center">{#RPT_ITEM_PAX#}</th>
+                <th class="text-center">{#RPT_ITEM_CASH#}</th>
+                <th class="text-center">{#RPT_ITEM_ACTUAL#}</th>
+                <th class="text-left">{#RPT_ITEM_ENTRANCE#}</th>
+                <th class="text-right"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach item=textday key=key from=$ObjectData.introtext.numday}
+            {assign var='count' value=$ObjectData.introtext.intro[$key]|@count}
+            <tr day="{$key}" row="0">
+                <td class="text-left numday" rowspan="{$count+1}">{$textday}<input type="hidden" name="vform[introtext][numday][{$key}]" value="{$textday}"/></td>
+                <td class="text-left intro" colspan="5">{$ObjectData.introtext.plates[$key]}<input type="hidden" name="vform[introtext][plates][{$key}]" value="{$ObjectData.introtext.plates[$key]}"/></td>
+                <td class="text-right"><button class="btn btn-success add-row" type="button"><i class="glyphicon glyphicon-plus"></i></button></td>
+            </tr>
+            {foreach item=intro key=i from=$ObjectData.introtext.intro[$key]}
+            <tr day="{$key}" row="">
+                <td class="text-left intro"><input placeholder="Guide fee" type="text" name="vform[introtext][intro][{$key}][]" value="{$intro}"></td>
+                <td class="text-center paxno"><input placeholder="1" type="text" name="vform[introtext][paxno][{$key}][]" value="{$ObjectData.introtext.paxno[$key][$i]}"></td>
+                <td class="text-center cash"><input placeholder="1.000" type="text" name="vform[introtext][cash][{$key}][]" value="{$ObjectData.introtext.cash[$key][$i]}"></td>
+                <td class="text-center actual"><input placeholder="1.000" type="text" name="vform[introtext][actual][{$key}][]" value="{$ObjectData.introtext.actual[$key][$i]}"></td>
+                <td class="text-left entrance">
+                    <div class="list-item">
+                        {foreach item=entrance from=$ObjectData.introtext.entrance[$key][$i]}
+                        <div><a class="glyphicon glyphicon-remove-sign text-danger del-ent" style="font-size: 14px;"></a> <input placeholder="W.Xiengthong" type="text" name="vform[introtext][entrance][{$key}][][]" value="{$entrance}"></div>
+                        {/foreach}
+                    </div>
+                    <a class="glyphicon glyphicon-plus-sign text-success add-ent" style="font-size: 14px;"></a>
+                </td>
+                <td class="text-right">
+                    <button class="btn btn-danger del-row" type="button"><i class="glyphicon glyphicon-remove"></i></button>
+                    <button class="btn btn-success sam-row" type="button"><i class="glyphicon glyphicon-plus"></i></button>
+                </td>
+            </tr>
+            {/foreach}
+            {/foreach}
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="4"></td>
+                <td class="text-left restaurant" colspan="2">
+                    <div><strong>{#RPT_ITEM_RESTAURANT#}</strong></div>
+                    <div class="list-item">
+                        {foreach item=items key=key from=$ObjectData.introtext.restaurant}
+                        <div>
+                            <a class="glyphicon glyphicon-remove-sign text-danger del-res" style="font-size: 14px;"></a>
+                            <input placeholder="W.Visoun" type="text" name="vform[introtext][restaurant][]" value="{$items}">
+                            <input placeholder="1.000" type="text" name="vform[introtext][res_price][]" value="{$ObjectData.introtext.res_price[$key]}" style="width: 60px;">
+                        </div>
+                        {/foreach}
+                    </div>
+                </td>
+                <td><button class="btn btn-success pull-right add-res" type="button"><i class="glyphicon glyphicon-plus"></i></button></td>
+            </tr>
+            </tfoot>
+        </table>
+	</fieldset>
+</form>
+{literal}
+<style type="text/css">
+    .intro input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 300px;}
+    .paxno input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 30px;text-align: center;}
+    .cash input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 60px;text-align: right;}
+    .actual input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 60px;text-align: right;}
+    .entrance input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 300px;margin-bottom: 3px;}
+    .restaurant input{border: #CCCCCC 1px solid;padding: 2px 5px;width: 300px;margin-bottom: 3px;}
+    .del-ent, .add-ent, .del-res{cursor: pointer;}
+</style>
+{/literal}

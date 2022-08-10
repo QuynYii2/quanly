@@ -1,0 +1,97 @@
+{literal}
+<script rptagent="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_fdate').val('');
+		$('#filter_tdate').val('');
+		$('#frm-admin').submit();
+	});
+
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+});
+</script>
+{/literal}
+
+<form name="frmRptAgent" id="frm-admin" action="" method="post" class="form-admin form-inline">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="rptagent"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div class="form-group">
+            <label for="filter_fdate">{#TITLE_SEARCH#}:</label>
+            <input type="text" class="form-control date-time" name="filter_fdate" id="filter_fdate" value="{$FormSearch.filter_fdate}" placeholder="{#RPT_F_DATE#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_tdate" id="filter_tdate" value="{$FormSearch.filter_tdate}" placeholder="{#RPT_T_DATE#}" autocomplete="off">
+        </div>
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <table class="table table-hover">
+	<thead>
+		{php}$FormSearch = $this->get_template_vars('FormSearch');{/php}
+		<tr>
+			<th width="5">#</th>
+			<th class="title" nowrap="nowrap">
+				{#RPT_STATUS#}
+			</th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_PNRNO#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_AGENT#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_RF_DATE#}
+            </th>
+			<th class="title" nowrap="nowrap">
+                {#RPT_RT_DATE#}
+			</th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_AMOUNT#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_PAID#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_BANKFEE#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_BALANCE#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_GUEST#}
+            </th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="11">{$paging}</td>
+		</tr>
+	</tfoot>
+	<tbody>
+	{foreach key=key item=items from=$DataList}
+		<tr class="row{$key%2}">
+			<td align="center">{$key+1}</td>
+            <td class="text-center">{$items.status}</td>
+            <td>{$items.invoiceno}</td>
+			<td>{$items.agent_name}</td>
+            <td>{$items.fperiod|date_format:'%d-%m-%Y'}</td>
+            <td>{$items.tperiod|date_format:'%d-%m-%Y'}</td>
+            <td>{$items.total}</td>
+            <td>{$items.paid}</td>
+            <td>{$items.bank}</td>
+            <td>{$items.balance|replace:'-':'+'}</td>
+            <td>{$items.guest}</td>
+		</tr>
+	{/foreach}
+	</tbody>
+	</table>
+</form>

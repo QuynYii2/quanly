@@ -1,0 +1,211 @@
+{php}$ObjectData = $this->get_template_vars('ObjectData');{/php}
+{literal}
+<script exptrans="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+    $('.time-only').timepicker();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	})
+
+    function setQuotation(qid, paxno){
+        if (qid) {
+            $('#paxno').val(paxno);
+            $.ajax({
+                type: "POST",
+                url: 'index.php?option=exptrans&view=callajax&task=getQuotation&ajax=1',
+                data: { qid: qid },
+                dataType: 'json',
+                success: function(result){
+                    $('#email').val(result.email);
+                    $('#phone').val(result.phone);
+                    $('#faxno').val(result.faxno);
+                    $('#address').val(result.address);
+                    $('#guide').val(result.name);
+                    $('#voucher').val(result.code);
+                    $('#s_date').val(result.s_date);
+                    $('#e_date').val(result.e_date);
+                    getProfile();
+                }
+            });
+        }
+    }
+
+    function getProfile(){
+        {/literal}{php}$pids = implode(',', $ObjectData['profile']);{/php}{literal}
+        $('select#profile').load("index.php?option=exptrans&view=callajax&task=getProfiles&ajax=1", {
+            qid: $('select#quotation').val(), pids: '{/literal}{php}echo $pids; {/php}{literal}'
+        }, function(){
+            $(this).trigger("chosen:updated");
+        });
+    }
+
+    $('select#quotation').change(function(){ setQuotation($(this).val(), $('option:selected', this).attr('item')); });
+
+    {/literal}{php}if (Generals::getVar('qid')):{/php}{literal}
+
+    var value   = parseInt("{/literal}{php}echo Generals::getVar('qid');{/php}{literal}");
+    $('select#quotation option[value="' + value + '"]').prop('selected',true);
+    $('select#quotation').trigger("chosen:updated");
+    setQuotation(value, $('select#quotation option:selected').attr('item'));
+
+    {/literal}{php}endif;{/php}{literal}
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmExpTrans" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+    <input type="hidden" id="genre" name="vform[genre]" value="3" />
+    <input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="exptrans"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<fieldset class="adminform">
+		<legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label for="quotation">{#EXP_QUOTATION#}: </label>
+                    <select id="quotation" name="vform[quotation]" class="form-control">
+                        <option value="">{#EXP_QUOTATION_SELECT#}</option>
+                        {foreach item=items from=$Quotations}
+                        <option item="{$items.paxrange}" value="{$items.id}" {if $items.id eq $ObjectData.quotation}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <label for="profile">{#EXP_TRANS#}</label>
+                <select id="profile" name="vform[profile][]" class="form-control" multiple>
+                    <option value="">{#EXP_TRANS_SELECT#}</option>
+                    {foreach item=items from=$Profiles}
+                    <option value="{$items.id}" {if in_array($items.id, $ObjectData.profile)}selected="selected"{/if}>{$items.code} - {$items.name}</option>
+                    {/foreach}
+                </select>
+            </div>
+            <div class="col-sm-1">
+                <div class="form-group">
+                    <label for="paxno">{#EXP_PAXNO#}:</label>
+                    <input type="text" id="paxno" name="vform[paxno]" value="{$ObjectData.paxno}" class="form-control required number"/>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="form-group">
+                    <label for="published">{#PUBLISHED#}: </label>
+                    <select id="published" name="vform[published]" class="form-control">
+                        <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                        <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="attn">{#EXP_ATTN#}:</label>
+                    <input type="text" id="attn" name="vform[attn]" value="{$ObjectData.attn}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="guide">{#EXP_GUIDE#}:</label>
+                    <input type="text" id="guide" name="vform[guide]" value="{$ObjectData.guide}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="address">{#EXP_ADDRESS#}:</label>
+                    <input type="text" id="address" name="vform[address]" value="{$ObjectData.address}" class="form-control required"/>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="phone">{#EXP_PHONE#}:</label>
+                            <input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}" class="form-control required"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="faxno">{#EXP_FAXNO#}:</label>
+                            <input type="text" id="faxno" name="vform[faxno]" value="{$ObjectData.faxno}" class="form-control required"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="g_name">{#EXP_GNAME#}:</label>
+                    <input type="text" id="g_name" name="vform[g_name]" value="{$ObjectData.g_name}" class="form-control"/>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="voucher">{#EXP_VOUCHER#}:</label>
+                    <input type="text" id="voucher" name="vform[voucher]" value="{$ObjectData.voucher}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="issued_by">{#EXP_ISSUED_BY#}:</label>
+                    <input type="text" id="issued_by" name="vform[issued_by]" value="{$ObjectData.issued_by}" class="form-control required"/>
+                </div>
+                <div class="form-group">
+                    <label for="issued_on">{#EXP_ISSUED_ON#}:</label>
+                    <input type="text" id="issued_on" name="vform[issued_on]" value="{$ObjectData.issued_on|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                </div>
+                <div class="form-group">
+                    <label for="email">{#EXP_EMAIL#}:</label>
+                    <input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="form-control required email"/>
+                </div>
+                <div class="form-group">
+                    <label for="guest">{#EXP_GUEST#}:</label>
+                    <input type="text" id="guest" name="vform[guest]" value="{$ObjectData.guest}" class="form-control"/>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="s_date">{#EXP_S_DATE#}:</label>
+                    <input type="text" id="s_date" name="vform[s_date]" value="{$ObjectData.s_date|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="e_date">{#EXP_E_DATE#}:</label>
+                    <input type="text" id="e_date" name="vform[e_date]" value="{$ObjectData.e_date|date_format:'%d-%m-%Y'}" class="form-control required date-time"/>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="fa_date">{#EXP_FA_DATE#}:</label>
+                    <input type="text" id="fa_date" name="vform[fa_date]" value="{$ObjectData.fa_date|date_format:'%d-%m-%Y'}" class="form-control date-time"/>
+                </div>
+                <div class="form-group">
+                    <label for="fd_date">{#EXP_FD_DATE#}:</label>
+                    <input type="text" id="fd_date" name="vform[fd_date]" value="{$ObjectData.fd_date|date_format:'%d-%m-%Y'}" class="form-control date-time"/>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label for="fa_time">{#EXP_FA_TIME#}:</label>
+                    <input type="text" id="fa_time" name="vform[fa_time]" value="{$ObjectData.fa_time}" class="form-control time-only"/>
+                </div>
+                <div class="form-group">
+                    <label for="fd_time">{#EXP_FD_TIME#}:</label>
+                    <input type="text" id="fd_time" name="vform[fd_time]" value="{$ObjectData.fd_time}" class="form-control time-only"/>
+                </div>
+            </div>
+        </div>
+	</fieldset>
+</form>

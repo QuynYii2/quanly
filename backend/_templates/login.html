@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{#page_title#}</title>
+</head>
+{literal}
+<style type="text/css">
+	body{font-family: arial;font-size: 12px;}
+	#root-rayout
+	{
+		width: 100%;
+		text-align: center;
+		height: 380px;
+		margin-top: 190px;
+	}
+	
+	.form-rayout
+	{
+		text-align: left;
+		margin: auto;
+	}
+	.button{
+		display: inline-table;padding: 3px 8px;margin: 0 0;list-style: none;
+	    border: 1px solid #D6D6D6;background-color: #cccccc;
+	    background-image: linear-gradient(#FFFFFF, #DBDBDB 100%, #F1F1F1);
+	    background-repeat: no-repeat;color: #333333;cursor: pointer;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+	.button:hover{background-image: linear-gradient(#DBDBDB, #FFFFFF 100%, #F1F1F1);}
+	.button::-moz-focus-inner {padding:0;border:0;}
+	.input_text{
+		font-family: Arial, Helvetica, sans-serif;
+		height: 18px;line-height: 18px;width:150px;
+		border: #E2E2E2 1px solid;padding: 2px 5px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+	.dropdown{
+		font-family: Arial, Helvetica, sans-serif;
+		border: #E2E2E2 1px solid;height: 24px;
+		padding: 2px 2px;width: 162px;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+	}
+</style>
+<script language=javascript type="text/javascript">
+	function loadForm() {
+		theform = document.forms["frmLogin"];
+		theform.username.focus();
+	}
+	
+	function focusTxtPassword(event) {
+		theform = document.forms["frmLogin"];
+		if ((window.event && window.event.keyCode == 13) || (event && event.which == 13)) {
+			//theform.password.focus();
+			SubmitForm();
+		}
+	}
+
+	function focusTxtCaptcha(event) {
+		theform = document.forms["frmLogin"];
+		if ((window.event && window.event.keyCode == 13) || (event && event.which == 13)) {
+			//theform.captcha.focus();
+			SubmitForm();
+		}
+	}
+	
+	function focusLoginButton(event) {
+		theform = document.forms["frmLogin"];
+		if ((window.event && window.event.keyCode == 13) || (event && event.which == 13)) {
+			//theform.login.focus();
+			SubmitForm();
+		}
+	}
+	
+	function SubmitForm() {
+		theform = document.forms["frmLogin"];
+		theform.submit();
+	}
+</script>
+{/literal}
+<body onload="javascript: loadForm();">
+<DIV id="root-rayout">
+	<img src="logo-host.png" style="display: block;margin: 10px auto;"/>
+	<form action="index.php" name="frmLogin" id="frmLogin" method="post">
+  		<input type="hidden" name="islogin" value="TRUE" />
+		{if $message != ""}
+		<table align="center">
+			<tr><td style="color:#FF0000">{$message}</td></tr>
+		</table>
+		{/if}
+		<table align="center" style="border: 1px #999999 solid" cellpadding="0" cellspacing="0">
+			<tr><td align="center">
+				<table bgcolor="#F5F5F5">
+					<tr><td colspan="2" align="center" style="font-size:16px;font-weight:bold;background-color:#DCDCDC;color:#0066FF;">{#TITLE_LOGIN#}</td></tr>
+					<tr>
+						<td align="left">{#USER_USERNAME#} :</td>
+						<td align="left"><input type="text" name="username" id="username" value="{$username}" onKeyDown="return focusTxtPassword(event);" class="input_text"/></td>
+					</tr>
+					<tr>
+						<td align="left">{#USER_PASSWORD#} :</td>
+						<td align="left"><input type="password" name="password" id="password" value="{$password}" onKeyDown="return focusTxtCaptcha(event);" class="input_text"/></td>
+					</tr>
+					<input type="hidden" id="langcode" name="langcode" value="vn"/>
+					<tr>
+						<td align="left">{#LANGUAGE#} :</td>
+						<td align="left">
+							<select name="langcode" id="langcode" class="dropdown">
+							{foreach item=items from=$languages}
+								<option value="{$items.code}" {if $langcode eq $items.code}selected="selected"{/if}>
+									{$items.name}
+								</option>
+							{/foreach}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td align="left"><label style="display: block;margin-top: 22px;">{#CAPTCHA#}:</label></td>
+						<td align="left">
+							<img src="captcha.gif" alt="{#REVIEW_CAPTCHA#}" style="margin-left: 20px;"/><br/>
+							<input type="text" id="captcha" name="captcha" value="" class="input_text" onKeyDown="return focusLoginButton(event);"/>
+						</td>
+					</tr>
+				</table>
+			</td></tr>
+			<tr><td align="center" style="padding: 5px;"><input type="button" name="login" id="login" value="{#BUTTON_SUBMIT#}" class="button" onclick="return SubmitForm();"/></td></tr>
+		</table>
+	</form>
+</DIV>
+</body>
+</html>

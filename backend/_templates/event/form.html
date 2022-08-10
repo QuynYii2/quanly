@@ -1,0 +1,368 @@
+<link type="text/css" href="styles/tipsy.css" rel="stylesheet">
+<link type="text/css" href="styles/upload.css" rel="stylesheet">
+<script src="javascripts/jquery.tipsy.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.queue.js" type="text/javascript" ></script>
+<script src="javascripts/upload/fileprogress.js" type="text/javascript" ></script>
+<script src="javascripts/upload/handlers.js" type="text/javascript" ></script>
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	$("#introlang").accordion();
+	$('.tooltip').tipsy({gravity: 's'});
+	
+	$('.date-time').datetimepicker({
+		showSecond: true, changeMonth: true, changeYear: true,
+		dateFormat: "dd-mm-yy", timeFormat: 'HH:mm:ss'
+	});
+
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('select').removeClass('required');
+		$('textarea').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	
+	$('a.remattach').click(function(){
+		$(this).remove();
+		$('img#itemattach').remove();
+		$('input#remattach').val($(this).attr('attach'));
+	});
+
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('a.oldvideo').click(function(){
+		if ($(this).attr('video')) $('div#remids').append('<input type="hidden" name="remid[]" value="'+$(this).attr('video')+'" />');
+		$('div[forval="'+$(this).attr('forval')+'"]').fadeOut().remove();
+	});
+	
+	$('a.addvideo').click(function(){
+		$('div#videos .block').each(function(key){
+			$(this).attr('forval', 'video'+key);
+			$(this).find('a').attr('forval', 'video'+key);
+			$(this).find('textarea').attr('id', 'video'+key);
+		});
+		
+		var html = '';
+		var leng = $('div#videos .block').length;
+		html+= '<div class="block" style="width: 99%;" forval="video'+leng+'">';
+		html+= '	<textarea id="video'+leng+'" name="video[]" class="inputbox" style="width: 95%;height: 40px;"></textarea>';
+		html+= '	<a forval="video'+leng+'" class="rem_old oldvideo" href="javascript:;" title="remove" style="margin: 0 0 0 10px;">remove</a>';
+		html+= '</div>';
+		
+		$('div#videos').append(html);
+		$('a.oldvideo').click(function(){
+			if ($(this).attr('video')) $('div#remids').append('<input type="hidden" name="remid[]" value="'+$(this).attr('video')+'" />');
+			$('div[forval="'+$(this).attr('forval')+'"]').fadeOut().remove();
+		});
+	});
+
+	uploadfile = new SWFUpload({
+		upload_url: "pages/event/upload.php",
+		post_params: {"PHPSESSID" : "{/literal}{php} echo session_id(); {/php}{literal}", ROOT_PATH: "{/literal}{php} echo urlencode(ROOT_PATH); {/php}{literal}"},
+		file_size_limit : "204800",
+		file_types : "*.jpg;*.gif;*.png;*.jpeg;*.bmp",
+		file_types_description : "All Files",
+		file_upload_limit : "300",
+		file_queue_limit : "200",
+		file_dialog_start_handler : fileDialogStart,
+		file_queued_handler : fileQueued,
+		file_queue_error_handler : fileQueueError,
+		upload_start_handler : uploadStart,
+		upload_progress_handler : uploadProgress,
+		upload_error_handler : uploadError,
+		upload_success_handler : uploadSuccess,
+		upload_complete_handler : function(file){
+			$.ajax({
+				url: 'pages/event/getfile.php',
+				data: { name: file.name, PHPSESSID : "{/literal}{php} echo session_id(); {/php}{literal}" },
+				dataType: 'json',
+				type: 'post',
+				success: function (result) {
+					if (result.image != 'null') {
+						var html = '<input type="text" style="width:135px;" id="'+result.iname+'" name="new_name[]" icon="'+result.image+'" class="tooltip images new_icon" href="javascript:;" title="<img src=../data/images/uptemp/'+result.image+' class=uptemp style=\'max-width:190px;\'/>" value="'+result.iname+'"/>';
+						html += '<input type="hidden" id="'+result.iname+'" name="new_icon[]" value="add_'+result.image+'"/>';
+						$('div#multi_images').append(html);
+						$('input.new_icon').tipsy({gravity: 's'});
+					}
+					$('a.new_icon').unbind('click');
+					$('a.new_icon').bind('click', function(){
+						if ($(this).hasClass('remove')) {
+								$(this).removeClass('remove');
+								$('input#'+$(this).attr('id')).val('add_'+$(this).attr('icon'));
+						} else {
+							if (confirm("Do you want to delte image?")) {
+								$(this).addClass('remove');
+								$('input#'+$(this).attr('id')).val('rem_'+$(this).attr('icon'));
+							}
+						}
+						$('div.tipsy').remove();
+					});
+				}
+			});
+		},
+		button_image_url : "images/upload/XPButtonUploadText_61x22.png",
+		button_placeholder_id : "spanButtonPlaceholder",
+		button_window_mode: "transparent",
+		button_width: 61,
+		button_height: 22,
+		flash_url : "javascripts/upload/swfupload.swf",
+		custom_settings : {
+			progressTarget : "fsUploadProgress",
+			cancelButtonId : "btnCancel"
+		},
+		debug: false
+	});
+	$("#btnUpload").click(function(){
+		uploadfile.startUpload();
+	});
+	
+	$('a.old_icon').click(function(){
+		if ($(this).hasClass('remove')) {
+				$(this).removeClass('remove');
+				$('input#'+$(this).attr('id')).val('add_'+$(this).attr('icon'));
+				$('input#tags_'+$(this).attr('id')).attr('readonly', false).attr('disabled', false).removeClass('through');
+		} else {
+			if (confirm("Do you want to delte image?")) {
+				$(this).addClass('remove');
+				$('input#'+$(this).attr('id')).val('rem_'+$(this).attr('icon'));
+				$('input#tags_'+$(this).attr('id')).attr('readonly', true).attr('disabled', true).addClass('through');
+			}
+		}
+		$('div.tipsy').remove();
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmEvent" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="event"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddenattach" value="{$ObjectData.attach}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#EVENT_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="shorttext_{$items.code}">{#EVENT_SHORT#}: </label>              
+						<textarea id="shorttext_{$items.code}" name="vform[shorttext][{$items.code}]" class="inputbox {if $key eq 0}required{/if}">{$ObjectLang[$items.code].shorttext}</textarea>
+						<div class="clear"></div>
+					</div>
+
+					<div class="block">
+						<label for="tags_{$items.code}">{#EVENT_TAGS#}:</label>
+						<input type="text" class="inputbox" id="tags_{$items.code}" name="vform[tags][{$items.code}]" value="{$ObjectLang[$items.code].tags}"/>
+						<div class="clr"></div>
+					</div>
+
+					<div class="block">
+						<label for="meta_{$items.code}">{#EVENT_META#}:</label>
+						<!-- <input type="text" fortit="tit_meta_{$items.code}" class="inputbox meta-limiters" id="meta_{$items.code}" name="vform[meta][{$items.code}]" value="{$ObjectLang[$items.code].meta}"/> -->
+						<textarea fortit="tit_meta_{$items.code}" class="inputbox meta-limiters" id="meta_{$items.code}" name="vform[meta][{$items.code}]">{$ObjectLang[$items.code].meta}</textarea>
+						<div class="clr"></div>
+						<div class="char-limit">The meta description will be limited to 160 chars, <span id="tit_meta_{$items.code}">0</span> chars left.</div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+			<div class="block">
+			 	<label for="catevents">{#EVENT_CATEVENT#}: </label>              
+				<select id="catevents" name="vform[catevents][]" class="inputbox required" multiple="multiple" size="6">
+					{foreach key = key item = items from = $CateventList}
+					<option value="{$items.id}" {if in_array($items.id, $ObjectData.catevents)}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="linkweb">{#EVENT_LINKWEB#}:</label>
+				<input type="text" class="inputbox" id="linkweb" name="vform[linkweb]" value="{$ObjectData.linkweb}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="attach">{#EVENT_ATTACH#}:</label>
+				<input type="file" class="inputbox" id="attach" name="attach" value="{$ObjectData.attach}" />
+				{if $ObjectData.attach}
+				<div class="overview">
+					<a attach="{$ObjectData.attach}" class="remattach" style="display:block;float:left;margin-top:3px;" href="javascript:;">{$ObjectData.attach}</a>
+				</div>
+				<input type="hidden" id="remattach" name="vform[remattach]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="start_date">{#START_DATE#}:</label>
+				<input type="text" id="start_date" name="vform[start_date]" class="inputbox date-time" value="{$ObjectData.start_date|date_format:'%d-%m-%Y %H:%M:%S'}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="end_date">{#END_DATE#}:</label>
+				<input type="text" id="end_date" name="vform[end_date]" class="inputbox date-time" value="{$ObjectData.end_date|date_format:'%d-%m-%Y %H:%M:%S'}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label>{#EVENT_IMAGE#}:</label>
+				<input type="file" class="inputbox" id="image" name="image" value="{$ObjectData.image}" />
+				{if $ObjectData.image}
+				<div class="overview">
+					<a image="{$ObjectData.image}" class="tooltip remimage" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+					<img id="itemimage" src="{$smarty.const.IMG_URL}event/resize/{$ObjectData.thumb}" class="thumbnail"/>
+				</div>
+				<input type="hidden" id="remimage" name="vform[remimage]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="social">{#FILE_SOCIAL#}:</label>
+				<input type="file" class="inputbox" id="social" name="social" value="{$ObjectData.social}" />
+				{if $ObjectData.social}
+				<div class="overview">
+					<a social="{$ObjectData.social}" class="tooltip remsocial" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+					<img id="itemsocial" src="{$smarty.const.IMG_URL}event/{$ObjectData.social}" class="thumbnail"/>
+				</div>
+				<input type="hidden" id="remsocial" name="vform[remsocial]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+	
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#EVENT_UPLOAD#}</legend>
+			<br/>
+			<div>
+				<div id="multi_images" style="padding-left:10px;display: table;">
+				{foreach key=key item=icons from=$images}
+				<input type="text" id="tags_icon{$icons.id}" name="old_name[]" class="tooltip" href="javascript:;" title="<img src=../data/images/event/multiple/{$icons.icon} style='width:190px;height:120px;border:#DDDDDD 1px solid;padding:1px;'/>" value="{$icons.name}" />
+				<a id="icon{$icons.id}" icon="{$icons.id}_{$icons.icon}" class="rem_old old_icon" href="javascript:;" title="remove">remove</a>
+				<input type="hidden" id="icon{$icons.id}" name="old_icon[]" value="add_{$icons.id}_{$icons.icon}" />
+				{/foreach}
+				</div>
+				<div class="clear"></div>
+				<div style="position:relative;margin-left:5px;">
+					<span class="legend" style="">Upload image</span>
+					<div class="fieldset flash" id="fsUploadProgress" style="overflow:auto;height:32px;width:95%;"></div>
+				</div>
+				<div style="padding-left:7px;">
+					<table width="auto" style="width: auto;">
+					<tr>
+						<td><span id="spanButtonPlaceholder"></span></td>
+						<td><input id="btnUpload" type="button" value="Start Upload" class="cmd-70x22" style="font-weight:normal;"/></td>
+						<td><input id="btnCancel" type="button" value="Cancel Uploads" onclick="cancelQueue(upload);" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" /></td>
+					</tr>
+					</table>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#EVENT_VIDEOS#} - <a href="javascript:;" class="addvideo">{#EVENT_ADDNEW#}</a></legend>
+			<br/>
+			<div id="videos">
+				{foreach key=key item=video from=$videos}
+				<div class="block" style="width: 99%;" forval="video{$key}">
+					<textarea id="video{$key}" name="video[]" class="inputbox" style="width: 95%;height: 30px;">{$video.media}</textarea>
+					<a video="{$video.id}" forval="video{$key}" class="rem_old oldvideo" href="javascript:;" title="remove" style="margin: 0 0 0 10px;">remove</a>
+					<input type="hidden" name="oldid[]" value="{$video.id}" />
+				</div>
+				{/foreach}
+				
+			</div>
+			<div id="remids"></div>
+		</fieldset>
+	</div>
+
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#EVENT_MEMBERS#}</legend>
+			<br/>
+			<div id="videos">
+				<div class="block" style="width: 99%;">
+					<textarea id="member" name="vform[member]" class="inputbox" style="width: 95%;height: 100px;">{$ObjectData.member}</textarea>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#EVENT_INTRO#}</legend>
+			<br/>
+			<div id="introlang">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>{$Introtext[$items.code]}</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+</form>

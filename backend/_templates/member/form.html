@@ -1,0 +1,166 @@
+{literal}
+<script member="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	$("#birthday").datepicker({
+		changeMonth: true,
+		changeYear: true,
+		dateFormat: 'dd-mm-yy',
+		yearRange: 'c-100:c+0'
+	});
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmMember" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="member"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="username">{#MEMBER_USERNAME#}:</label>
+				<input type="text" id="username" name="vform[username]" value="{$ObjectData.username}" class="required alphabet"/>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="name">{#MEMBER_NAME#}:</label>
+				<input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#MEMBER_EMAIL#}:</label>
+				<input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="required email"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#MEMBER_PASSWORD#}:</label>
+				<input type="password" id="password" name="vform[password]" value="" class="{if $ObjectData.id eq 0}required{/if}"/>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="phone">{#MEMBER_PHONE#}:</label>
+				<input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="mobile">{#MEMBER_MOBILE#}:</label>
+				<input type="text" id="mobile" name="vform[mobile]" value="{$ObjectData.mobile}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="gender">{#MEMBER_GENDER#}:</label>
+				<select id="gender" name="vform[gender]" class="inputbox">
+					<option value="0" {if $ObjectData.gender eq 0}selected="selected"{/if}>{#GENDER_0#}</option>
+					<option value="1" {if $ObjectData.gender eq 1}selected="selected"{/if}>{#GENDER_1#}</option>
+					<option value="2" {if $ObjectData.gender eq 2}selected="selected"{/if}>{#GENDER_2#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="receive">{#MEMBER_RECEIVE#}:</label>
+				<select id="receive" name="vform[receive]" class="inputbox">
+					<option value="0" {if $ObjectData.receive eq 0}selected="selected"{/if}>{#OPTION_NO#}</option>
+					<option value="1" {if $ObjectData.receive eq 1}selected="selected"{/if}>{#OPTION_YES#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="groupid">{#MEMBER_GROUP#}:</label>
+				<select id="groupid" name="vform[groupid]" class="inputbox">
+					<option value="0" {if $ObjectData.groupid eq 0}selected="selected"{/if}>{#MEMBER_GROUP0#}</option>
+					<option value="1" {if $ObjectData.groupid eq 1}selected="selected"{/if}>{#MEMBER_GROUP1#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="genre">{#MEMBER_GENRE#}:</label>
+				<select id="genre" name="vform[genre]" class="inputbox">
+					<option value="0" {if $ObjectData.genre eq 0}selected="selected"{/if}>{#MEMBER_GENRE0#}</option>
+					<option value="1" {if $ObjectData.genre eq 1}selected="selected"{/if}>{#MEMBER_GENRE1#}</option>
+					<option value="2" {if $ObjectData.genre eq 2}selected="selected"{/if}>{#MEMBER_GENRE2#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+			<div class="block">
+				<label for="address">{#MEMBER_ADDRESS#}:</label>
+				<input type="text" id="address" name="vform[address]" value="{$ObjectData.address}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="birthday">{#MEMBER_BIRTHDAY#}:</label>
+				<input type="text" id="birthday" name="vform[birthday]" value="{$ObjectData.birthday|date_format:'%d-%m-%Y'}" class="input-small"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="introtext">{#MEMBER_INTRO#}: </label>              
+				<textarea id="introtext" name="vform[introtext]" class="inputbox">{$ObjectData.introtext}</textarea>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label>{#MEMBER_IMAGE#}:</label>
+				<input type="file" class="inputbox" id="image" name="image" value="{$ObjectData.image}" />
+				{if $ObjectData.image}
+				<div class="overview">
+					<a image="{$ObjectData.image}" class="tooltip remimage" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+					<img id="itemimage" src="{$smarty.const.IMG_URL}member/resize/{$ObjectData.thumb}" class="thumbnail"/>
+				</div>
+				<input type="hidden" id="remimage" name="vform[remimage]" value="0"/>
+				{/if}
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+	</fieldset>
+</form>

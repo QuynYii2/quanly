@@ -1,0 +1,9 @@
+{include file=$include_header}
+<div class="admin-form">
+	{if file_exists($include_option)}
+    <div class="container">
+		{include file=$include_option}
+    </div>
+	{/if}
+</div>
+{include file=$include_footer}

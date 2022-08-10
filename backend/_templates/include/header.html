@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{#page_title#}</title>
+    <link href="{php}echo JURI::base();{/php}library/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="{php}echo JURI::base();{/php}library/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
+    <link href="{php}echo JURI::base();{/php}library/assets/css/template.css" rel="stylesheet" type="text/css" />
+    <link href="{php}echo JURI::base();{/php}library/assets/css/jquery-ui-1.10.0.custom.css" rel="stylesheet" type="text/css" />
+    <link href="{php}echo JURI::base();{/php}library/assets/css/jquery-ui-timepicker-addon.css" rel="stylesheet" type="text/css" />
+    <link href="{php}echo JURI::base();{/php}library/assets/css/chosen.css" rel="stylesheet" type="text/css" />
+	<link href="{php}echo JURI::base();{/php}backend/styles/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="{php}echo JURI::root();{/php}library/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/jquery-ui-1.10.0.custom.js"></script>
+	<script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/jquery.limit-1.2.source.js"></script>
+	<script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/jquery-ui-timepicker-addon.js"></script>
+    <script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/chosen.jquery.js"></script>
+	<script type="text/javascript" src="{php}echo JURI::root();{/php}library/assets/js/jquery.validate.js"></script>
+	<script type="text/javascript" src="{php}echo JURI::root();{/php}backend/javascripts/admin.js"></script>
+</head>
+<body style="margin: 0px;">
+{literal}
+	<script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('select.form-control').chosen();
+        });
+	</script>
+{/literal}
+<div class="main-container">
+    {include file=$include_menu}
+    <div class="tool-bar">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6"><div class="navigate">&nbsp;{$TitlePage}</div></div>
+                <div class="col-sm-6"><div class="text-right">{$toolbar}</div></div>
+            </div>
+        </div>
+    </div>
+
+    {if count($warnings) gt 0}
+    <div id="system-message-container">
+        <dl id="system-message">
+            <dt class="message">Warning</dt>
+            <dd class="message warning">
+                <ul>
+                    {foreach key = key item=items from = $warnings}
+                    <li>{$items}</li>
+                    {/foreach}
+                </ul>
+            </dd>
+        </dl>
+    </div>
+    {/if}
+
+    {if count($messages) gt 0}
+    <div id="system-message-container">
+        <dl id="system-message">
+            <dt class="message">Message</dt>
+            <dd class="message message">
+                <ul>
+                    {foreach key = key item=items from = $messages}
+                    <li>{$items}</li>
+                    {/foreach}
+                </ul>
+            </dd>
+        </dl>
+    </div>
+    {/if}

@@ -1,0 +1,110 @@
+{literal}
+<script staagent="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_fdate').val('');
+		$('#filter_tdate').val('');
+        $('#filter_agent').val('');
+		$('#frm-admin').submit();
+	});
+
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+});
+</script>
+{/literal}
+
+<form name="frmStaAgent" id="frm-admin" action="" method="post" class="form-admin form-inline">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="staagent"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div class="form-group">
+            <label for="filter_fdate">{#TITLE_SEARCH#}:</label>
+            <input type="text" class="form-control date-time" name="filter_fdate" id="filter_fdate" value="{$FormSearch.filter_fdate}" placeholder="{#STA_FROM#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_tdate" id="filter_tdate" value="{$FormSearch.filter_tdate}" placeholder="{#STA_TO#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <select name="filter_agent" id="filter_agent" class="form-control">
+                <option value="" selected="selected">{#STA_AGENT#}</option>
+                {foreach key=key item=items from=$Agencies}
+                <option value="{$items.id}" {if $FormSearch.filter_agent eq $items.id}selected="selected"{/if}>{$items.name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <table class="table table-hover" id="accordion">
+	<thead>
+		{php}$FormSearch = $this->get_template_vars('FormSearch');{/php}
+		<tr>
+            <th class="title" nowrap="nowrap">
+                {#STA_QUOTATION#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#STA_AGENT#}
+            </th>
+			<th class="title" nowrap="nowrap">
+				{#STA_CREATE#}
+			</th>
+            <th class="title" nowrap="nowrap">
+                {#STA_PRICE#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#STA_MARKUP#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#STA_NOTE#}
+            </th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="11">{$paging}</td>
+		</tr>
+	</tfoot>
+	<tbody>
+	{foreach key=qid item=quotation from=$DataList}
+        <tr class="active">
+            <td>
+                <a style="color: inherit;" data-toggle="collapse" data-parent="#accordion" href=".collapse{$qid}" aria-expanded="false" aria-controls="collapse{$qid}">
+                    <span class="badge">{$quotation.title}</span>
+                </a>
+            </td>
+            <td>
+                <a style="color: inherit;" data-toggle="collapse" data-parent="#accordion" href=".collapse{$qid}" aria-expanded="false" aria-controls="collapse{$qid}">
+                    <span class="badge">{$quotation.agent}</span>
+                </a>
+            </td>
+            <td colspan="4">
+                <a style="color: inherit;" data-toggle="collapse" data-parent="#accordion" href=".collapse{$qid}" aria-expanded="false" aria-controls="collapse{$qid}">
+                    - <strong>{#STA_TOTAL#}:</strong> {$quotation.total|number_format:"2"}
+                    - <strong>{#STA_PROFIT#}:</strong> {$quotation.profit|number_format:"2"}
+                    - <strong>{#STA_PAID_TOTAL#}:</strong> {$quotation.paid|number_format:"2"}
+                    - <strong>{#STA_PAID_MARKUP#}:</strong> {$quotation.markup|number_format:"2"}
+                </a>
+            </td>
+        </tr>
+        {foreach item=items from=$quotation.value}
+        <tr class="collapse{$qid} panel-collapse collapse">
+            <td></td>
+            <td></td>
+            <td>{$items.create_on|date_format:'%d-%m-%Y'}</td>
+            <td>{$items.price|number_format:"2"}</td>
+            <td>{$items.markup|number_format:"2"}</td>
+            <td>{$items.introtext}</td>
+		</tr>
+        {/foreach}
+	{/foreach}
+	</tbody>
+	</table>
+</form>

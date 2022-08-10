@@ -1,0 +1,113 @@
+{literal}
+<script rptsupplier="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$('#resetform').click(function(){
+		$('#filter_search').val('');
+		$('#filter_published').val('');
+		$('#frm-admin').submit();
+	});
+
+    $('.date-time').datetimepicker({
+        showSecond: false, changeMonth: true, changeYear: true, showTimepicker: false,
+        dateFormat: "dd-mm-yy"//, timeFormat: 'HH:mm:ss'
+    });
+});
+</script>
+{/literal}
+
+<form name="frmRptSupplier" id="frm-admin" action="" method="post" class="form-admin form-inline">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="rptsupplier"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+
+    <div class="search-area">
+        <div class="form-group">
+            <label for="filter_fdate">{#TITLE_SEARCH#}:</label>
+            <input type="text" class="form-control date-time" name="filter_fdate" id="filter_fdate" value="{$FormSearch.filter_fdate}" placeholder="{#RPT_F_DATE#}" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control date-time" name="filter_tdate" id="filter_tdate" value="{$FormSearch.filter_tdate}" placeholder="{#RPT_T_DATE#}" autocomplete="off">
+        </div>
+        <button type="submit"class="btn btn-primary">{#BUTTON_SUBMIT#}</button>
+        <button type="button" id="resetform" class="btn btn-default">{#BUTTON_RESET#}</button>
+    </div>
+
+    <table class="table table-hover">
+	<thead>
+		<tr>
+            <th width="5">{#TITLE_ID#}</th>
+			<th class="title" nowrap="nowrap">
+				{#RPT_FILE_NO#}
+			</th>
+            <th class="title" nowrap="nowrap">
+                {#TITLE_GUEST#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#TITLE_SUPPLIER#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_CODE#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_PROFILE#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_DETAIL#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_AMOUNT#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_PAID#}
+            </th>
+            <th class="title" nowrap="nowrap">
+                {#RPT_BALANCE#}
+            </th>
+		</tr>
+	</thead>
+	<tfoot>
+		<tr>
+			<td colspan="11">{$paging}</td>
+		</tr>
+	</tfoot>
+	<tbody>
+	{foreach item=quotation from=$DataList}
+		<tr>
+            <td class="bg-primary">{$quotation.id}</td>
+            <td class="bg-primary">{$quotation.file_no}</td>
+            <td class="bg-primary" colspan="2">{$quotation.guest}</td>
+            <td class="bg-primary" colspan="6">&nbsp;</td>
+		</tr>
+        {foreach key=key item=payment from=$quotation.listdata}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="bg-danger" colspan="4"><strong>{$payment.title}</strong></td>
+            <td class="bg-danger"><strong>{$payment.total|number_format:"2"}</strong></td>
+            <td class="bg-danger"><strong>{$payment.paid|number_format:"2"}</strong></td>
+            <td class="bg-danger"><strong>{$payment.unpaid|number_format:"2"}</strong></td>
+        </tr>
+        {foreach item=items from=$payment.value}
+        {php}$items = $this->get_template_vars('items');{/php}
+        {php}$service = Generals::getTitle('EXPORT_SERVICE_'.strtoupper($items['service']));{/php}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><strong>{php}echo $service;{/php}</strong></td>
+            <td>{$items.pr_name}</td>
+            <td>{$items.dt_name}</td>
+            <td><strong>{$items.total|number_format:"2"}</strong></td>
+            <td><strong>{$items.paid|number_format:"2"}</strong></td>
+            <td><strong>{$items.unpaid|number_format:"2"}</strong></td>
+        </tr>
+        {/foreach}
+        {/foreach}
+	{/foreach}
+	</tbody>
+	</table>
+</form>

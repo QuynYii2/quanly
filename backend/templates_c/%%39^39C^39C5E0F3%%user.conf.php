@@ -1,0 +1,17 @@
+<?php $_config_vars = array (
+  'USER_ID' => 'ID',
+  'USER_GROUP' => 'Account group',
+  'USER_USERNAME' => 'User',
+  'USER_PASSWORD' => 'Password',
+  'USER_EMAIL' => 'Email Address',
+  'USER_NAME' => 'Full Name',
+  'USER_INTRO' => 'Description',
+  'USER_ALIAS' => 'Alias name',
+  'USER_IMAGE' => 'Image',
+  'USER_GROUP_0' => 'Full permission',
+  'USER_GROUP_1' => 'Product',
+  'USER_GROUP_2' => 'Service',
+  'USER_GROUP_3' => 'News',
+  'USER_EMAIL_EXISTED' => 'Email already existed',
+  'USER_USERNAME_EXISTED' => 'Account already existed',
+); ?>

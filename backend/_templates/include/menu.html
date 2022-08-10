@@ -1,0 +1,236 @@
+<nav class="navbar navbar-vns" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#" style="line-height: 40px;">Menu</a>
+    </div>
+
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+            <li><a href="index.php">{#MENU_INDEX#}</a></li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;" title="{#MENU_SYSTEM#}">{#MENU_SYSTEM#}<b class="caret"></b></a>
+                <ul role="menu" class="dropdown-menu">
+                    <!--
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=continent&view=list" title="Market segment and rates">{#MENU_CONTINENT#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=continent&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=continent&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=country&view=list" title="Country">{#MENU_COUNTRY#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=country&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=country&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=location&view=list" title="Location">{#MENU_LOCATION#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=location&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=location&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <!--
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=currencies&view=list" title="Currency setting">{#MENU_CURRENCIES#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=currencies&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=currencies&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    -->
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=season&view=list" title="Date range setting">{#MENU_SEASON#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=season&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=season&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=person&view=list" title="Pax range setting">{#MENU_PERSON#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=person&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=person&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=payment&view=list" title="Payment method">{#MENU_PAYMENT#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=payment&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=payment&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <!--
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=spoken&view=list" title="Languages">{#MENU_SPOKEN#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=spoken&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=spoken&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=language&view=list" title="Languages">{#MENU_LANGUAGE#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=language&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=language&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    -->
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="" title="{#MENU_SERVICE#}">{#MENU_SERVICE#}<b class="caret"></b></a>
+                <ul role="menu" class="dropdown-menu">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=hotel&view=list" title="Accommodation">{#MENU_SERVICE_HOTEL#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu list-unstyled">
+                            <li><a href="index.php?option=service&genre=hotel&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=hotel&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=hotel&view=list"><strong>{#MENU_HOTEL#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=hotel&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=hotel&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=guider&view=list" title="Guider">{#MENU_SERVICE_GUIDER#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=guider&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=guider&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=guider&view=list"><strong>{#MENU_GUIDER#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=guider&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=guider&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=entrance&view=list" title="Entrance Fee">{#MENU_SERVICE_ENTRANCE#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=entrance&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=entrance&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=entrance&view=list"><strong>{#MENU_ENTRANCE#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=entrance&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=entrance&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=vehicle&view=list" title="Car & bus">{#MENU_SERVICE_VEHICLE#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=vehicle&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=vehicle&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=vehicle&view=list"><strong>{#MENU_VEHICLE#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=vehicle&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=vehicle&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=boat&view=list" title="Boat & Cruise">{#MENU_SERVICE_BOAT#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=boat&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=boat&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=boat&view=list"><strong>{#MENU_BOAT#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=boat&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=boat&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=food&view=list" title="Menu">{#MENU_SERVICE_FOOD#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=food&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=food&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=food&view=list"><strong>{#MENU_FOOD#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=food&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=food&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=flight&view=list" title="Flight ticket">{#MENU_SERVICE_FLIGHT#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=flight&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=flight&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=flight&view=list"><strong>{#MENU_FLIGHT#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=flight&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=flight&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=service&genre=miscell&view=list" title="Miscellaneous">{#MENU_SERVICE_MISCELL#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=service&genre=miscell&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=service&genre=miscell&view=form">{#MENU_SUB_ADD#}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li class="parent-menu"><a href="index.php?option=miscell&view=list"><strong>{#MENU_MISCELL#}</strong><b class="caret"></b></a></li>
+                            <li class="child-menu"><a href="index.php?option=miscell&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                            <li class="child-menu"><a href="index.php?option=miscell&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="" title="{#MENU_PROFILE#}">{#MENU_PROFILE#}<b class="caret"></b></a>
+                <ul role="menu" class="dropdown-menu">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=agency&view=list" title="Manage Agency">{#MENU_AGENCY#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=agency&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=agency&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="index.php?option=supplier&view=list" title="Manage Suppliers">{#MENU_SUPPLIER#}<i class="glyphicon glyphicon-triangle-right"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="index.php?option=supplier&view=list">{#MENU_SUB_LIST#}</a></li>
+                            <li><a href="index.php?option=supplier&view=form">{#MENU_SUB_ADD#}</a></li>
+                        </ul>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="index.php?option=reagency&view=list" title="Agency report">{#MENU_REAGENCY#}</a></li>
+                    <li><a href="index.php?option=repartner&view=list" title="Suppliers report">{#MENU_REPARTNER#}</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="index.php?option=prequotation&view=list" title="Manage quotations">{#MENU_PREQUOTATION#}</a></li>
+                    <li><a href="index.php?option=extquotation&view=list" title="Manage tour">{#MENU_EXTQUOTATION#}</a></li>
+                    <li><a href="index.php?option=tour&view=list" title="Manage tour">{#MENU_TOUR#}</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="" title="{#MENU_NEWQUOTE#}">{#MENU_NEWQUOTATION#}<b class="caret"></b></a>
+                <ul role="menu" class="dropdown-menu">
+                    <li><a href="index.php?option=prequotation&view=form" title="Quotation by Prepackage">{#MENU_PREQUOTATION#}</a></li>
+                    <li><a href="index.php?option=extquotation&view=form" title="Exact Quotation">{#MENU_EXTQUOTATION#}</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <span>{#WELLCOME#}: {$logindata.name}</span>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{#MENU_USER#} <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="index.php?option=user&view=list">{#MENU_SUB_LIST#}</a></li>
+                    <li><a href="index.php?option=user&view=form">{#MENU_SUB_ADD#}</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li class="parent-menu"><a href="index.php?option=usergroup&view=list"><strong>{#MENU_USERGROUP#}</strong></a></li>
+                    <li class="child-menu"><a href="index.php?option=usergroup&view=list"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_LIST#}</a></li>
+                    <li class="child-menu"><a href="index.php?option=usergroup&view=form"><i class="glyphicon glyphicon-plus"></i>{#MENU_SUB_ADD#}</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="index.php?task=logout">{#MENU_LOGOUT#}</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

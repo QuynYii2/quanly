@@ -1,0 +1,233 @@
+<link type="text/css" href="styles/tipsy.css" rel="stylesheet">
+<link type="text/css" href="styles/upload.css" rel="stylesheet">
+<script src="javascripts/jquery.tipsy.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.js" type="text/javascript" ></script>
+<script src="javascripts/upload/swfupload.queue.js" type="text/javascript" ></script>
+<script src="javascripts/upload/fileprogress.js" type="text/javascript" ></script>
+<script src="javascripts/upload/handlers.js" type="text/javascript" ></script>
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	$("#introlang").accordion();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('select').removeClass('required');
+		$('textarea').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+
+	$('input.tooltip').tipsy({gravity: 's'});
+	$('a.old_icon').click(function(){
+		if ($(this).hasClass('remove')) {
+				$(this).removeClass('remove');
+				$('input#'+$(this).attr('id')).val('add_'+$(this).attr('icon'));
+				$('input#tags_'+$(this).attr('id')).attr('readonly', false).attr('disabled', false).removeClass('through');
+		} else {
+			if (confirm("Do you want to delte image?")) {
+				$(this).addClass('remove');
+				$('input#'+$(this).attr('id')).val('rem_'+$(this).attr('icon'));
+				$('input#tags_'+$(this).attr('id')).attr('readonly', true).attr('disabled', true).addClass('through');
+			}
+		}
+		$('div.tipsy').remove();
+	});
+	uploadfile = new SWFUpload({
+		upload_url: "pages/upload/upload.php",
+		post_params: {"PHPSESSID" : "{/literal}{php} echo session_id(); {/php}{literal}", ROOT_PATH: "{/literal}{php} echo urlencode(ROOT_PATH); {/php}{literal}"},
+		file_size_limit : "204800",
+		file_types : "*.jpg;*.gif;*.png;*.jpeg;*.bmp",
+		file_types_description : "All Files",
+		file_upload_limit : "300",
+		file_queue_limit : "200",
+		file_dialog_start_handler : fileDialogStart,
+		file_queued_handler : fileQueued,
+		file_queue_error_handler : fileQueueError,
+		upload_start_handler : uploadStart,
+		upload_progress_handler : uploadProgress,
+		upload_error_handler : uploadError,
+		upload_success_handler : uploadSuccess,
+		upload_complete_handler : function(file){
+			$.ajax({
+				url: 'pages/upload/getfile.php',
+				data: { name: file.name, PHPSESSID : "{/literal}{php} echo session_id(); {/php}{literal}" },
+				dataType: 'json',
+				type: 'post',
+				success: function (result) {
+					if (result.image != 'null') {
+						var html = '<input type="text" style="width:135px;" id="'+result.iname+'" name="new_name[]" icon="'+result.image+'" class="tooltip images new_icon" href="javascript:;" title="<img src=../data/images/uptemp/'+result.image+' class=uptemp style=\'max-width:190px;\'/>" value="'+result.iname+'"/>';
+						html += '<input type="hidden" id="'+result.iname+'" name="new_icon[]" value="add_'+result.image+'"/>';
+						$('div#multi_images').append(html);
+						$('input.new_icon').tipsy({gravity: 's'});
+					}
+					$('a.new_icon').unbind('click');
+					$('a.new_icon').bind('click', function(){
+						if ($(this).hasClass('remove')) {
+								$(this).removeClass('remove');
+								$('input#'+$(this).attr('id')).val('add_'+$(this).attr('icon'));
+						} else {
+							if (confirm("Do you want to delte image?")) {
+								$(this).addClass('remove');
+								$('input#'+$(this).attr('id')).val('rem_'+$(this).attr('icon'));
+							}
+						}
+						$('div.tipsy').remove();
+					});
+				}
+			});
+		},
+		button_image_url : "images/upload/XPButtonUploadText_61x22.png",
+		button_placeholder_id : "spanButtonPlaceholder",
+		button_window_mode: "transparent",
+		button_width: 61,
+		button_height: 22,
+		flash_url : "javascripts/upload/swfupload.swf",
+		custom_settings : {
+			progressTarget : "fsUploadProgress",
+			cancelButtonId : "btnCancel"
+		},
+		debug: false
+	});
+	$("#btnUpload").click(function(){
+		uploadfile.startUpload();
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmGara" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="gara"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#GARA_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="shorttext_{$items.code}">{#GARA_SHORT#}: </label>              
+						<textarea id="shorttext_{$items.code}" name="vform[shorttext][{$items.code}]" class="inputbox {if $key eq 0}required{/if}">{$ObjectLang[$items.code].shorttext}</textarea>
+						<div class="clear"></div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+
+			<div class="block">
+			 	<label for="city">{#GARA_CITY#}: </label>              
+				<select id="city" name="vform[city]" class="inputbox required" multiple="multiple" size="6">
+					{foreach key = key item = items from = $CitiesList}
+					<option value="{$items.id}" {if $items.id eq $ObjectData.city}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="location">{#GARA_LOCATION#}:</label>
+				<input type="text" id="location" name="vform[location]" class="inputbox" value="{$ObjectData.location}"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#GARA_UPLOAD#}</legend>
+			<br/>
+			<div>
+				<div id="multi_images" style="padding-left:10px;display: table;">
+				{foreach key=key item=icons from=$images}
+				<input type="text" id="tags_icon{$icons.id}" name="old_name[{$icons.id}]" class="tooltip" href="javascript:;" title="<img src=../data/images/gara/{$icons.icon} style='width:190px;height:120px;border:#DDDDDD 1px solid;padding:1px;'/>" value="{$icons.name}" />
+				<a id="icon{$icons.id}" icon="{$icons.id}_{$icons.icon}" class="rem_old old_icon" href="javascript:;" title="remove">remove</a>
+				<input type="hidden" id="icon{$icons.id}" name="old_icon[{$icons.id}]" value="add_{$icons.id}_{$icons.icon}" />
+				{/foreach}
+				</div>
+				<div class="clear"></div>
+				<div style="position:relative;margin-left:5px;">
+					<span class="legend" style="">Upload image</span>
+					<div class="fieldset flash" id="fsUploadProgress" style="overflow:auto;height:32px;width:95%;"></div>
+				</div>
+				<div style="padding-left:7px;">
+					<table width="auto" style="width: auto;">
+					<tr>
+						<td><span id="spanButtonPlaceholder"></span></td>
+						<td><input id="btnUpload" type="button" value="Start Upload" class="cmd-70x22" style="font-weight:normal;"/></td>
+						<td><input id="btnCancel" type="button" value="Cancel Uploads" onclick="cancelQueue(upload);" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" /></td>
+					</tr>
+					</table>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="width-100">
+		<fieldset class="adminform">
+			<legend>{#GARA_INTRO#}</legend>
+			<br/>
+			<div id="introlang">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>{$Introtext[$items.code]}</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+</form>

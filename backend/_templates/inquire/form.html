@@ -1,0 +1,106 @@
+{literal}
+<script inquire="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmInquire" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="inquire"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-50 fltlft">
+			<div class="block">
+				<label for="name">{#INQUIRE_NAME#}:</label>
+				<input type="text" id="name" name="vform[name]" value="{$ObjectData.name}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="person">{#INQUIRE_PERSON#}:</label>
+				<input type="text" id="person" name="vform[person]" value="{$ObjectData.person}" class="required"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="email">{#INQUIRE_EMAIL#}:</label>
+				<input type="text" id="email" name="vform[email]" value="{$ObjectData.email}" class="required email"/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="age">{#INQUIRE_AGE#}:</label>
+				<input type="text" id="age" name="vform[age]" value="{$ObjectData.age}" class=""/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="address">{#INQUIRE_ADDRESS#}:</label>
+				<input type="text" id="address" name="vform[address]" value="{$ObjectData.address}" class=""/>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="phone">{#INQUIRE_PHONE#}:</label>
+				<input type="text" id="phone" name="vform[phone]" value="{$ObjectData.phone}" class=""/>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<div class="width-50 fltrt">
+            <!--
+			<div class="block">
+			 	<label for="classifies">{#INQUIRE_CLASS#}: </label>              
+				<select id="classifies" name="vform[classifies][]" class="inputbox required" multiple="multiple" size="6">
+					{foreach key = key item = items from = $ClassifyList}
+					<option value="{$items.id}" {if in_array($items.id, $ObjectData.classifies)}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+            -->
+
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+		<br/>
+		<div class="width-100">
+			<label for="introtext"><strong>{#INQUIRE_INTRO#}</strong></label>
+			<div>{$Introtext}</div>
+		</div>
+		<br/>
+		<div class="width-100">
+			<label for="introtext"><strong>{#INQUIRE_REPLY#}</strong></label>
+			<div>{$Replytext}</div>
+		</div>
+	</fieldset>
+</form>

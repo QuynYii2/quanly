@@ -1,0 +1,94 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmSupport" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="support"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#SUPPORT_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="introtext_{$items.code}">{#SUPPORT_INTRO#}: </label>              
+						<textarea id="introtext_{$items.code}" name="vform[introtext][{$items.code}]" class="inputbox">{$ObjectLang[$items.code].introtext}</textarea>
+						<div class="clear"></div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+			<div class="block">
+				<label for="username">{#SUPPORT_USERNAME#}:</label>
+				<input type="text" id="username" name="vform[username]" value="{$ObjectData.username}" class="required"/>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+			 	<label for="genre">{#SUPPORT_GENRE#}: </label>              
+				<select id="genre" name="vform[genre]" class="inputbox">
+					<option value="0" {if $ObjectData.genre eq 0}selected="selected"{/if}>{#OPTION_YAHOO#}</option>
+					<option value="1" {if $ObjectData.genre eq 1}selected="selected"{/if}>{#OPTION_SKYPE#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+</form>

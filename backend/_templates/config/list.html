@@ -1,0 +1,47 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	$("#introlang").accordion();
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmConfig" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="config"/>
+	<input type="hidden" id="view" name="view" value="list" />
+	<div class="width-100">
+		<div>
+			{foreach item=items from=$ImagesList}
+			<div class="block" style="width: 100%;">
+				<input type="text" id="label_{$items.id}" name="label[{$items.id}]" value="{$items.label}" class="inputbox" style="width: 95%;margin: 5px 0;" />
+				<input type="file" id="image_{$items.id}" name="image[{$items.id}]" value="{$items.value}" style="margin: 5px 0;" />
+				<input type="hidden" id="hidden_{$items.id}" name="hidden[{$items.id}]" value="{$items.value}" />
+			</div>
+			{/foreach}
+		</div>
+	</div>
+	<div class="width-100">
+		<div id="introlang">
+			{foreach key=key item=lang from=$languages}
+			<h3>{$lang.name}</h3>
+			<div>
+				{foreach item=items from=$ObjectList}
+				<div class="block" style="width: 100%;">
+					<input type="hidden" id="primary_{$lang.code}_{$items.id}" name="primary[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].id}" />
+					<input type="text" id="name_{$lang.code}_{$items.id}" name="name[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].name}" class="inputbox" style="width: 95%;margin: 5px 0;">
+					{if $items.genre eq '0'}
+					<input type="text" id="introtext_{$lang.code}_{$items.id}" name="introtext[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].introtext}" class="inputbox" style="width: 95%;margin: 0 0;">
+					{elseif $items.genre eq '1'}
+					{$Introtext[$lang.code][$items.id]}
+					{elseif $items.genre eq '2'}
+					<textarea id="introtext_{$lang.code}_{$items.id}" name="introtext[{$lang.code}][{$items.id}]" class="inputbox" style="width: 95%;margin: 0 0;">{$ObjectLang[$lang.code][$items.id].introtext}</textarea>
+					{/if}
+				</div>
+				{/foreach}
+			</div>
+			{/foreach}
+		</div>
+	</div>
+</form>

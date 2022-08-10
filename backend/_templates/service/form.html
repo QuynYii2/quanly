@@ -1,0 +1,157 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+	$('a.remsocial').click(function(){
+		$(this).remove();
+		$('img#itemsocial').remove();
+		$('input#remsocial').val($(this).attr('social'));
+	});
+	$('.meta-limiters').each(function(){
+		var title = $(this).attr('fortit');
+		$(this).limit('160', $('span#'+title));
+	});
+
+    $('#symbol').val($('option:selected', '#currency').attr('symbol'));
+    $('#currency').change(function(){
+        $('#symbol').val($('option:selected', this).attr('symbol'));
+    });
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmService" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+    <input type="hidden" id="genre" name="genre" value="{$genre}" />
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="service"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<input type="hidden" name="hiddensocial" value="{$ObjectData.social}" />
+    <div class="row">
+        <div class="col-sm-6">
+            <fieldset class="adminform">
+                <legend><label>{#INFO_ONE_LANGUAGE#}</label></legend>
+                <div id="forlanguage">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        {foreach key=key item=items from=$languages}
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="heading{$items.id}">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{$items.id}" aria-expanded="true" aria-controls="collapse{$items.id}">
+                                        {$items.name}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse{$items.id}" class="panel-collapse collapse {if $key eq 0}in{/if}" role="tabpanel" aria-labelledby="heading{$items.id}">
+                                <div class="panel-body">
+                                    <input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+                                    <div class="form-group">
+                                        <label for="name_{$items.code}">{#TITLE#}:</label>
+                                        <input type="text" class="form-control {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="introtext_{$items.code}">{#INTROTEXT#}: </label>
+                                        <textarea id="introtext_{$items.code}" name="vform[introtext][{$items.code}]" class="form-control">{$ObjectLang[$items.code].introtext}</textarea>
+                                    </div>
+                                    <!--
+                                    <div class="form-group">
+                                        <label for="tags_{$items.code}">{#TITLE_TAGS#}:</label>
+                                        <input type="text" class="form-control" id="tags_{$items.code}" name="vform[tags][{$items.code}]" value="{$ObjectLang[$items.code].tags}"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="meta_{$items.code}">{#TITLE_META#}:</label>
+                                        <textarea fortit="tit_meta_{$items.code}" class="form-control meta-limiters" id="meta_{$items.code}" name="vform[meta][{$items.code}]">{$ObjectLang[$items.code].meta}</textarea>
+                                        <div class="char-limit">The meta description will be limited to 160 chars, <span id="tit_meta_{$items.code}">0</span> chars left.</div>
+                                    </div>
+                                    -->
+                                </div>
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-sm-6">
+            <fieldset class="adminform">
+                <legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+                <div class="form-group">
+                    <label for="code">{#CODE#}:</label>
+                    <input type="text" class="form-control required" id="code" name="vform[code]" value="{$ObjectData.code}"/>
+                </div>
+                <div class="form-group">
+                    <label for="supplier">{#SUPPLIER#}:</label>
+                    <select name="vform[supplier]" id="supplier" class="form-control required">
+                        {foreach key=key item=items from=$suppliers}
+                        <option value="{$items.id}" {if $ObjectData.supplier eq $items.id}selected="selected"{/if}>{$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="location">{#LOCATION#}:</label>
+                    <select name="vform[location]" id="location" class="form-control required">
+                        {foreach key=key item=items from=$locations}
+                        <option value="{$items.id}" {if $ObjectData.location eq $items.id}selected="selected"{/if}>{$items.name}</option>
+                        {/foreach}
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="ordering">{#ORDERING#}:</label>
+                            <select id="ordering" name="vform[ordering]" class="form-control">
+                                <option value="0">{#OPTION_FIRST#}</option>
+                                {foreach key = key item = items from = $Ordering }
+                                <option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+                                {/foreach}
+                                <option value="{$items.value+1}">{#OPTION_LAST#}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="published">{#PUBLISHED#}: </label>
+                            <select id="published" name="vform[published]" class="form-control">
+                                <option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+                                <option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                <div class="form-group">
+                    <label for="social">{#FILE_SOCIAL#}:</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="file" class="form-control" id="social" name="social" value="{$ObjectData.social}" />
+                        </div>
+                        <div class="col-sm-6">
+                            {if $ObjectData.social}
+                            <div class="overview">
+                                <a social="{$ObjectData.social}" class="tooltip remsocial" style="display:block;float:left;margin-top:3px;" href="javascript:;">Thumbnail</a>
+                                <img id="itemsocial" src="{$smarty.const.IMG_URL}service/{$ObjectData.social}" class="thumbnail"/>
+                            </div>
+                            <input type="hidden" id="remsocial" name="vform[remsocial]" value="0"/>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+                -->
+            </fieldset>
+        </div>
+    </div>
+</form>

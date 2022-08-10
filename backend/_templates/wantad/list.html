@@ -1,0 +1,151 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$('#resetform').click(function(){
+		$('input[type="text"].inputtext').val('');
+		$('#filter_published').val('');
+		$('#filter_category').val('');
+		$('#frm-admin').submit();
+	});
+	
+	$( "#tabs-group" ).tabs();
+
+	$('#tabs-group .loaddata').each(function(){
+		loadData($(this));
+	});
+	
+	function loadData(objme) {
+		objme.find('.pagination a').unbind('click').click(function(){
+        	var page = $(this).attr('page');
+        	if (!$(this).parent().hasClass('disabled') && !$(this).parent().hasClass('active')){
+				$.ajax({
+					url: 		'index.php?option=wantad&view=list&task=getDataList',
+					type: 		'POST', dataType: 	'json',
+					data: 		{ group: objme.attr('group'), page: page },
+					success: 	function (result) {
+						objme.find('tfoot td').html(result.page);
+						objme.find('tbody').html(result.html);
+						loadData(objme);
+					}
+				});
+        	}
+        	
+        	return false;
+        });
+	}
+});
+</script>
+{/literal}
+
+<form name="frmProduct" id="frm-admin" action="" method="post" class="form-admin">
+	<input type="hidden" id="task" 		name="task" 	value=""/>
+	<input type="hidden" id="option" 	name="option" 	value="wantad"/>
+	<input type="hidden" id="view" 		name="view"		value="list" />
+	<input type="hidden" id="orderby_order"	name="orderby_order" value="{$FormSearch.orderby_order}" />
+	<input type="hidden" id="orderby_field" name="orderby_field" value="{$FormSearch.orderby_field}" />
+	
+	<div class="form-search">
+		{#TITLE_SEARCH#}:
+		<input class="inputtext" type="text" name="filter_search" id="filter_search" value="{$FormSearch.filter_search}" title="" placeholder="Tiêu đề"/>
+		<input class="inputtext" type="text" name="filter_custom[17]" id="filter_custom17" value="{$FormSearch.filter_custom[17]}" title="" placeholder="Họ tên"/>
+		<input class="inputtext" type="text" name="filter_custom[20]" id="filter_custom20" value="{$FormSearch.filter_custom[20]}" title="" placeholder="Email"/>
+		<input class="inputtext" type="text" name="filter_custom[19]" id="filter_custom19" value="{$FormSearch.filter_custom[19]}" title="" placeholder="Địa chỉ"/>
+		<input class="inputtext" type="text" name="filter_custom[18]" id="filter_custom18" value="{$FormSearch.filter_custom[18]}" title="" placeholder="Số điện thoại"/>
+		<!-- 
+		<select name="filter_grouppro" id="filter_grouppro" class="selectbox">
+			<option value="" selected="selected">{#PLEASE_SELECT#}</option>
+			{foreach key = key item = items from = $Groupproes}
+			<option value="{$items.id}" {if $FormSearch.filter_grouppro eq $items.id}selected="selected"{/if}>{$items.name}</option>
+			{/foreach}
+		</select>
+		 -->
+		<select name="filter_published" id="filter_published" class="selectbox">
+			<option value="" selected="selected">{#PLEASE_SELECT#}</option>
+			<option value="0" {if $FormSearch.filter_published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+			<option value="1" {if $FormSearch.filter_published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+		</select>
+		<button type="submit">{#BUTTON_SUBMIT#}</button>
+		<button type="button" id="resetform">{#BUTTON_RESET#}</button>
+	</div>
+	
+	<div id="tabs-group">
+		<ul>
+		{foreach item=group from=$Groupproes}
+			<li><a href="#tabs-group-{$group.id}">{$group.name}</a></li>
+		{/foreach}
+		</ul>
+		{foreach item=group from=$Groupproes}
+		<div id="tabs-group-{$group.id}" group="{$group.id}" class="loaddata">
+			<table class="adminlist">
+			<thead>
+				{php}$FormSearch = $this->get_template_vars('FormSearch');{/php}
+				<tr>
+					<th width="5">#</th>
+					<th width="20">
+						<input type="checkbox" name="toggle" value="0" class="check-all" />
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_NAME#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CREATE_ON#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CUSTOM_17#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CUSTOM_18#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CUSTOM_19#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CUSTOM_20#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PRODUCT_CUSTOM_21#}
+					</th>
+					<th class="title" nowrap="nowrap">
+						{#PUBLISHED#}
+					</th>
+					<th width="1%" nowrap="nowrap">
+						{#PRODUCT_ID#}
+					</th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<td colspan="13">{$paging[$group.id]}</td>
+				</tr>
+			</tfoot>
+			<tbody>
+			{foreach key=key item=items from=$DataList[$group.id]}
+				<tr class="row{$key%2}">
+					<td align="center">{$key+1}</td>
+					<td align="center"><input type="checkbox" id="cid_{$items.id}" name="cid[]" value="{$items.id}" class="check-id"/></td>
+					<td>
+						<a href="index.php?option=wantad&view=form&cid[]={$items.id}">{$items.name}</a>
+						<p title="{$items.name}" class="smallsub">(<span>{#PRODUCT_ALIAS#}</span>: {$items.alias})</p>
+					</td>
+					<td>{$items.create_on}</td>
+					<td>{$items.person.value}</td>
+					<td>{$items.phone.value}</td>
+					<td>{$items.address.value}</td>
+					<td>{$items.email.value}</td>
+					<td>{$items.city_name}</td>
+					<td align="center">
+						{if $items.published eq 1}
+						<a href="javascript:void(0);" class="boolean" onclick="javascript: submitForm('unpublish', {$items.id});"><span class="publish"></span></a>
+						{else}
+						<a href="javascript:void(0);" class="boolean" onclick="javascript: submitForm('publish', {$items.id});"><span class="unpublish"></span></a>
+						{/if}
+					</td>
+					<td align="center">{$items.id}</td>
+				</tr>
+			{/foreach}
+			</tbody>
+			</table>
+		</div>
+		{/foreach}
+	</div>
+</form>

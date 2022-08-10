@@ -1,0 +1,49 @@
+{literal}
+<script reply="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#form-admin").validate();
+
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmReply" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="reply"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<fieldset class="adminform">
+		<legend>{#INFO_ALL_LANGUAGE#}</legend>
+		<br/>
+		<div class="width-100">
+			<div class="block">
+				<label for="name">{#REPLY_INQUIRE#}:</label>
+				<select id="inquire" name="vform[inquire]">
+					{foreach item=items from=$Inquires}
+					<option value="{$items.id}" {if $items.id eq $ObjectData.inquire}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+	
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<div class="clr"></div>
+		<br/>
+		<div class="width-100">
+			<label for="introtext"><strong>{#REPLY_INTRO#}</strong></label>
+			<div>{$Introtext}</div>
+		</div>
+	</fieldset>
+</form>

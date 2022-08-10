@@ -1,0 +1,24 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmGlobal" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value="update"/>
+    <div class="row">
+        <div id="system-message-container">
+            <dl id="system-message">
+                <dt class="message">Message</dt>
+                <dd class="message warning">
+                    <ul>
+                        <li>{#PERMISSION_MESSAGE#}</li>
+                    </ul>
+                </dd>
+            </dl>
+        </div>
+        <br/>
+    </div>
+</form>

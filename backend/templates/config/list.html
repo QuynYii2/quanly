@@ -1,0 +1,98 @@
+{literal}
+<script language="javascript" type="text/javascript">
+jQuery(document).ready(function($) {
+	$("#form-admin").validate();
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmConfig" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="config"/>
+	<input type="hidden" id="view" name="view" value="list" />
+    <fieldset class="adminform">
+        <legend><label>{#INFO_ALL_LANGUAGE#}</label></legend>
+        <br/>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>{#INDEX_TITLE#}</th>
+                <th>{#INDEX_VALUE#}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach item=items from=$ImagesList}
+            <tr>
+                <td>
+                    <input type="text" id="label_{$items.id}" name="label[{$items.id}]" value="{$items.label}" class="required input-lager" readonly="readonly" style="border: none;background: transparent !important;"/>
+                </td>
+                <td>
+                    <input type="file" id="image_{$items.id}" name="image[{$items.id}]" value="{$items.value}" />
+                    <input type="hidden" id="hidden_{$items.id}" name="hidden[{$items.id}]" value="{$items.value}" />
+                </td>
+            </tr>
+            {/foreach}
+
+            {foreach key=key item=items from=$globals}
+            <tr>
+                <td>
+                    <input type="hidden" id="global_{$items.id}" name="global[{$items.id}]" value="{$items.id}"/>
+                    <input type="hidden" id="config_{$items.id}" name="config[{$items.id}]" value="{$items.config}"/>
+                    <input type="text" id="title_{$items.id}" name="title[{$items.id}]" value="{$items.label}" class="required input-lager" readonly="readonly" style="border: none;background: transparent !important;"/>
+                </td>
+                <td>
+                    {if $items.genre eq '0'}
+                    <input type="text" id="value_{$items.id}" name="value[{$items.id}]" value="{$items.value}" class="required form-control"/>
+                    {elseif $items.genre eq '1'}
+                    {$Introtext[$lang.code][$items.id]}
+                    {elseif $items.genre eq '2'}
+                    <textarea type="text" style="height: 60px;" id="value_{$items.id}" name="value[{$items.id}]" class="required form-control">{$items.value}</textarea>
+                    {/if}
+                </td>
+            </tr>
+            {/foreach}
+            </tbody>
+        </table>
+    </fieldset>
+    {if count($ObjectList) gt 0}
+    <br/>
+    <fieldset class="adminform">
+        <legend><label>{#INFO_ONE_LANGUAGE#}</label></legend>
+        <div id="forlanguage">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                {foreach key=key item=items from=$languages}
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="heading{$items.id}">
+                        <h4 class="panel-title">
+                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{$items.id}" aria-expanded="true" aria-controls="collapse{$items.id}">
+                                {$items.name}
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse{$items.id}" class="panel-collapse collapse {if $key eq 0}in{/if}" role="tabpanel" aria-labelledby="heading{$items.id}">
+                        <div class="panel-body">
+                            {foreach item=items from=$ObjectList}
+                            <div class="block" style="width: 100%;">
+                                <input type="hidden" id="primary_{$lang.code}_{$items.id}" name="primary[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].id}" />
+                                <div class="form-group">
+                                    <input type="hidden" id="name_{$lang.code}_{$items.id}" name="name[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].name}" class="form-control">
+                                    <label for="introtext_{$lang.code}_{$items.id}">{$ObjectLang[$lang.code][$items.id].name}</label>
+                                    {if $items.genre eq '0'}
+                                    <input type="text" id="introtext_{$lang.code}_{$items.id}" name="introtext[{$lang.code}][{$items.id}]" value="{$ObjectLang[$lang.code][$items.id].introtext}" class="form-control">
+                                    {elseif $items.genre eq '1'}
+                                    {$Introtext[$lang.code][$items.id]}
+                                    {elseif $items.genre eq '2'}
+                                    <textarea id="introtext_{$lang.code}_{$items.id}" name="introtext[{$lang.code}][{$items.id}]" class="form-control">{$ObjectLang[$lang.code][$items.id].introtext}</textarea>
+                                    {/if}
+                                </div>
+                            </div>
+                            {/foreach}
+                        </div>
+                    </div>
+                </div>
+                {/foreach}
+            </div>
+        </div>
+    </fieldset>
+    {/if}
+</form>

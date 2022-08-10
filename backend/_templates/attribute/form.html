@@ -1,0 +1,129 @@
+{literal}
+<script language="javascript" type="text/javascript">
+$(document).ready(function() {
+	$("#forlanguage").accordion();
+	$("#form-admin").validate();
+	$("#introlang").accordion();
+	
+	function getRelates(value) {
+		$('select#custom option').each(function(key){
+			if ($(this).is(':selected')){
+				var relative = $(this).attr('relative');
+				$.ajax({
+					url: 'index.php?option=attribute&view=form&task=getRelative',
+					data: { custom: relative },
+					dataType: 'json',
+					type: 'post',
+					success: function (result) {
+						$('select#relate').html('');
+						for (var i = 0; i < result.length; i++){
+							var selected = '';
+							if (value == result[i].code) selected = ' selected="selected"';
+							$('select#relate').append('<option value="'+result[i].code+'"'+selected+'>'+result[i].name+'</option>');
+						}
+					}
+				});
+			}
+		});
+	}
+	$('select#custom').change(function(){ getRelates(''); });
+	getRelates('{/literal}{$ObjectData.relate}{literal}');
+	
+	$('a.toolbar[task="cancel"]').click(function(){
+		$('input').removeClass('required');
+		$('select').removeClass('required');
+		$('textarea').removeClass('required');
+		$('input#task').val('cancel');
+		$('form.form-admin').submit();
+	});
+
+	$('a.remimage').click(function(){
+		$(this).remove();
+		$('img#itemimage').remove();
+		$('input#remimage').val($(this).attr('image'));
+	});
+});
+</script>
+{/literal}
+
+<form action="" method="post" name="frmAttribute" id="form-admin" class="form-validate form-admin" enctype="multipart/form-data">
+	<input type="hidden" id="task" name="task" value=""/>
+	<input type="hidden" id="option" name="option" value="attribute"/>
+	<input type="hidden" id="view" name="view" value="form" />
+	<input type="hidden" name="hiddenimage" value="{$ObjectData.image}" />
+	<div class="width-55 fltlft">
+		<fieldset class="adminform">
+			<legend>{#INFO_ONE_LANGUAGE#}</legend>
+			<br/>
+			<div id="forlanguage">
+				{foreach key=key item=items from=$languages}
+				<h3>{$items.name}</h3>
+				<div>
+					<input type="hidden" id="oldid_{$items.code}" name="vform[oldid][{$items.code}]" value="{$ObjectLang[$items.code].id}"/>
+					<div class="block">
+						<label for="name_{$items.code}">{#ATTRIBUTE_NAME#}:</label>
+						<input type="text" class="inputbox {if $key eq 0}required{/if}" id="name_{$items.code}" name="vform[name][{$items.code}]" value="{$ObjectLang[$items.code].name}"/>
+						<div class="clr"></div>
+					</div>
+		
+					<div class="block">
+					 	<label for="introtext_{$items.code}">{#ATTRIBUTE_INTRO#}: </label>              
+						<textarea id="introtext_{$items.code}" name="vform[introtext][{$items.code}]" class="inputbox">{$ObjectLang[$items.code].introtext}</textarea>
+						<div class="clear"></div>
+					</div>
+				</div>
+				{/foreach}
+			</div>
+		</fieldset>
+	</div>
+	
+	<div class="width-40 fltrt">
+		<fieldset class="adminform">
+			<legend>{#INFO_ALL_LANGUAGE#}</legend>
+			<br/>
+			<div class="block">
+				<label for="custom">{#ATTRIBUTE_CUSTOM#}:</label>
+				<select id="custom" name="vform[custom]" class="inputbox">
+					{foreach key = key item = items from = $Customs}
+					<option genre="{$items.genre}" relative="{$items.relative}" value="{$items.id}" {if $ObjectData.custom eq $items.id}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="code">{#ATTRIBUTE_CODE#}: </label>              
+				<input type="text" id="code" name="vform[code]" value="{$ObjectData.code}" class="inputbox" style="width: 100px;"/>
+				<label for="relate" style="margin-left: 10px;margin-right: 10px;width: auto;min-width: inherit !important;">for</label>
+				<select id="relate" name="vform[relate]" class="inputbox" style="margin-left: 0;">
+					{foreach key = key item = items from = $Relates}
+					<option value="{$items.code}" {if $ObjectData.relate eq $items.code}selected="selected"{/if}>{$items.name}</option>
+					{/foreach}
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+				<label for="ordering">{#ORDERING#}:</label>
+				<select id="ordering" name="vform[ordering]" class="inputbox">
+					<option value="0">{#OPTION_FIRST#}</option>
+					{foreach key = key item = items from = $Ordering }
+					<option value="{$items.value}" {if $ObjectData.ordering eq $items.value}selected="selected"{/if}>{$items.text}</option>
+					{/foreach}
+					<option value="{$items.value+1}">{#OPTION_LAST#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+
+			<div class="block">
+			 	<label for="published">{#PUBLISHED#}: </label>              
+				<select id="published" name="vform[published]" class="inputbox">
+					<option value="1" {if $ObjectData.published eq 1}selected="selected"{/if}>{#OPTION_PUBLISH#}</option>
+					<option value="0" {if $ObjectData.published eq '0'}selected="selected"{/if}>{#OPTION_UNPUBLISH#}</option>
+				</select>
+				<div class="clear"></div>
+			</div>
+		</fieldset>
+	</div>
+	<div class="clr"></div>
+</form>
